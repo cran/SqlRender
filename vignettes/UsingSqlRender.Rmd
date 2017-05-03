@@ -126,7 +126,7 @@ The `targetDialect` parameter can have the following values:
 These SQL Server functions have been tested and were found to be translated correctly to the various dialects:
 
 ```{r echo=FALSE}
-funs <- c("ABS", "ACOS", "ASIN", "ATAN", "AVG", "CAST", "CEILING", "CHARINDEX", "CONCAT", "COS", "COUNT", "COUNT_BIG", "DATEADD", "DATEDIFF", "DATEFROMPARTS", "DATETIMEFROMPARTS", "DAY", "EOMONTH", "EXP", "FLOOR", "GETDATE", "HASHBYTES**", "ISNULL", "LEFT", "LEN", "LOG", "LOG10", "LOWER", "LTRIM", "MAX", "MIN", "MONTH", "NEWID*", "PI", "POWER", "RAND*", "RANK", "RIGHT", "ROUND", "ROW_NUMBER", "RTRIM", "SIN", "SQRT", "SQUARE", "STDEV", "SUM", "TAN", "UPPER", "VAR", "YEAR", "", "")
+funs <- c("ABS", "ACOS", "ASIN", "ATAN", "AVG", "CAST", "CEILING", "CHARINDEX", "CONCAT", "COS", "COUNT", "COUNT_BIG", "DATEADD", "DATEDIFF", "DATEFROMPARTS", "DATETIMEFROMPARTS", "DAY", "EOMONTH", "EXP", "FLOOR", "GETDATE", "HASHBYTES**", "ISNULL", "ISNUMERIC", "LEFT", "LEN", "LOG", "LOG10", "LOWER", "LTRIM", "MAX", "MIN", "MONTH", "NEWID*", "PI", "POWER", "RAND*", "RANK", "RIGHT", "ROUND", "ROW_NUMBER", "RTRIM", "SIN", "SQRT", "SQUARE", "STDEV", "SUM", "TAN", "UPPER", "VAR", "YEAR", "")
 
 
 knitr::kable(matrix(funs, ncol = 4), col.names = rep("Function",4), caption = "Functions supported by translateSql")
@@ -237,6 +237,17 @@ or
 
 ```sql
 SELECT * FROM #temp WHERE CAST(txt AS INT) = 1;
+```
+
+## Case sensitivity in string comparisons
+Some DBMS platforms such as SQL Server always perform string comparisons in a case-insensitive way, while others such as PostgreSQL are always case sensitive. It is therefore recommended to always assume case-sensitive comparisons, and to explicitly make comparisons case-insensitive when unsure about the case. For example, instead of 
+
+```sql
+SELECT * FROM concept WHERE concep_class_id = 'Clinical Finding'
+```
+it is preferred to use
+```sql
+SELECT * FROM concept WHERE LOWER(concep_class_id) = 'clinical finding'
 ```
 
 ## Schemas and databases

@@ -6,12 +6,12 @@ oracle,<par_open>,(
 oracle,<par_close>,)
 oracle,EXCEPT,MINUS
 oracle,"CONCAT(@a, @b, @c)","CONCAT(@a, CONCAT(@b, @c))"
-oracle,"DATEADD(second,@seconds,@datetime)",(@datetime + interval '@seconds' second)
-oracle,"DATEADD(minute,@minutes,@datetime)",(@datetime + interval '@minutes' minute)
-oracle,"DATEADD(hour,@hours,@datetime)",(@datetime + interval '@hours' hour)
-oracle,"DATEADD(d,@days,@date)",(@date + interval '@days' day)
-oracle,"DATEADD(dd,@days,@date)",(@date + interval '@days' day)
-oracle,"DATEADD(day,@days,@date)",(@date + interval '@days' day)
+oracle,"DATEADD(second,@seconds,@datetime)","(@date + NUMTODSINTERVAL(@seconds, 'second'))"
+oracle,"DATEADD(minute,@minutes,@datetime)","(@date + NUMTODSINTERVAL(@minutes, 'minute'))"
+oracle,"DATEADD(hour,@hours,@datetime)","(@date + NUMTODSINTERVAL(@hours, 'hour'))"
+oracle,"DATEADD(d,@days,@date)","(@date + NUMTODSINTERVAL(@days, 'day'))"
+oracle,"DATEADD(dd,@days,@date)","(@date + NUMTODSINTERVAL(@days, 'day'))"
+oracle,"DATEADD(day,@days,@date)","(@date + NUMTODSINTERVAL(@days, 'day'))"
 oracle,"DATEADD(month,@months,@date)","ADD_MONTHS(@date, @months)"
 oracle,"DATEADD(mm,@months,@date)","ADD_MONTHS(@date, @months)"
 oracle,"DATEADD(m,@months,@date)","ADD_MONTHS(@date, @months)"
@@ -34,9 +34,6 @@ oracle,CAST(@a AS VARCHAR(@b)),TO_CHAR(@a)
 oracle,CAST(@a AS VARCHAR),TO_CHAR(@a)
 oracle,"DATEFROMPARTS(@year,@month,@day)","TO_DATE(TO_CHAR(@year,'0000')||'-'||TO_CHAR(@month,'00')||'-'||TO_CHAR(@day,'00'), 'YYYY-MM-DD')"
 oracle,"DATETIMEFROMPARTS(@year,@month,@day,@hour,@minute,@second,@ms)","TO_DATE(TO_CHAR(@year,'0000')||'-'||TO_CHAR(@month,'00')||'-'||TO_CHAR(@day,'00')||' '||TO_CHAR(@hour,'00')||':'||TO_CHAR(@minute,'00')||':'||TO_CHAR(@second,'00'), 'YYYY-MM-DD HH24:MI:SS')"
-oracle,YEAR(@date),EXTRACT(YEAR FROM @date)
-oracle,MONTH(@date),EXTRACT(MONTH FROM @date)
-oracle,DAY(@date),EXTRACT(DAY FROM @date)
 oracle,EOMONTH(@date),LAST_DAY(@date)
 oracle,STDEV(@a),STDDEV(@a)
 oracle,VAR(@a),VARIANCE(@a)
@@ -46,9 +43,12 @@ oracle,"HASHBYTES('MD5',@a)","DBMS_CRYPTO.HASH(@a,2)"
 oracle,LEN(@a),LENGTH(@a)
 oracle,"LEFT(@str,@chars)","SUBSTR(@str,0,@chars)"
 oracle,"RIGHT(@str,@chars)","SUBSTR(@str,-@chars)"
-oracle,LOG(@expression),"LOG(2.718281828459, @expression)"
+oracle,"LOG(@expression,@base)","<L_O_G>(@base,@expression)"
+oracle,LOG(@expression),"LOG(2.718281828459,@expression)"
+oracle,<L_O_G>,LOG
 oracle,LOG10(@expression),"LOG(10,@expression)"
 oracle,"ISNULL(@a,@b)","NVL(@a,@b)"
+oracle,ISNUMERIC(@a),"(LENGTH(TRIM(TRANSLATE(@a, ' +-.0123456789',' '))) IS NULL)"
 oracle,COUNT_BIG(@a),COUNT(@a)
 oracle,SQUARE(@a),((@a)*(@a))
 oracle,PI(),3.141592654
@@ -56,10 +56,18 @@ oracle,NEWID(),SYS_GUID()
 oracle,"CHARINDEX(@a,@b)","INSTR(@b,@a)"
 oracle,SELECT @a WHERE @b;,SELECT @a FROM DUAL WHERE @b;
 oracle,(SELECT @a WHERE @b),(SELECT @a FROM DUAL WHERE @b)
+oracle,SELECT @a WHERE @b UNION,SELECT @a FROM DUAL WHERE @b UNION
 oracle,SELECT @a;,SELECT @a FROM DUAL;
 oracle,(SELECT @a),(SELECT @a FROM DUAL)
-oracle,SELECT @a FROM @b FROM DUAL,SELECT @a FROM @b
-oracle,SELECT @a FROM @b FROM DUAL,SELECT @a FROM @b
+oracle,SELECT @a UNION,SELECT @a FROM DUAL UNION
+oracle,SELECT @a FROM @b FROM DUAL;,SELECT @a FROM @b;
+oracle,FROM @a FROM DUAL,FROM @a
+oracle,FROM @a FROM DUAL,FROM @a
+oracle,FROM @a FROM DUAL,FROM @a
+oracle,FROM @a FROM DUAL,FROM @a
+oracle,YEAR(@date),EXTRACT(YEAR FROM @date)
+oracle,MONTH(@date),EXTRACT(MONTH FROM @date)
+oracle,DAY(@date),EXTRACT(DAY FROM @date)
 oracle,"IF OBJECT_ID('@table', 'U') IS NULL CREATE TABLE @table (@definition);",BEGIN\n  EXECUTE IMMEDIATE 'CREATE TABLE @table (@definition)';\nEXCEPTION\n  WHEN OTHERS THEN\n    IF SQLCODE != -955 THEN\n      RAISE;\n    END IF;\nEND;
 oracle,"IF OBJECT_ID('tempdb..#@table', 'U') IS NOT NULL DROP TABLE #@table;",BEGIN\n  EXECUTE IMMEDIATE 'TRUNCATE TABLE %temp_prefix%%session_id%@table';\n  EXECUTE IMMEDIATE 'DROP TABLE %temp_prefix%%session_id%@table';\nEXCEPTION\n  WHEN OTHERS THEN\n    IF SQLCODE != -942 THEN\n      RAISE;\n    END IF;\nEND;
 oracle,"IF OBJECT_ID('@table', 'U') IS NOT NULL DROP TABLE @table;",BEGIN\n  EXECUTE IMMEDIATE 'TRUNCATE TABLE @table';\n  EXECUTE IMMEDIATE 'DROP TABLE @table';\nEXCEPTION\n  WHEN OTHERS THEN\n    IF SQLCODE != -942 THEN\n      RAISE;\n    END IF;\nEND;
@@ -80,7 +88,7 @@ oracle,##,<hash><hash>
 oracle,#,%temp_prefix%%session_id%
 oracle,<hash><hash>,##
 oracle,SELECT TOP @([0-9]+)rows @a;,SELECT @a WHERE ROWNUM <= @rows; 
-oracle,SELECT @a WHERE @b WHERE @c;,SELECT @a WHERE @b AND @c;
+oracle,SELECT @a WHERE @b WHERE ROWNUM <= @rows;,SELECT @a WHERE @b AND ROWNUM <= @rows;
 postgresql,"ROUND(@a,@b)","ROUND(CAST(@a AS NUMERIC),@b)"
 postgresql,"CONVERT(DATE, @a)","TO_DATE(@a, 'yyyymmdd')"
 postgresql,"DATEADD(second,@seconds,@datetime)",(@datetime + @seconds*INTERVAL'1 second')
@@ -118,9 +126,12 @@ postgresql,RAND(),RANDOM()
 postgresql,"HASHBYTES('MD5',@a)",MD5(@a)
 postgresql,LEN(@a),CHAR_LENGTH(@a)
 postgresql,"CHARINDEX(@a,@b)","STRPOS(@b,@a)"
-postgresql,LOG(@expression),LN(@expression)
-postgresql,LOG10(@expression),"LOG(10,@expression)"
+postgresql,"LOG(@expression,@base)","<L_O_G>(CAST((@base) AS NUMERIC),CAST((@expression) AS NUMERIC))"
+postgresql,LOG(@expression),LN(CAST((@expression) AS REAL))
+postgresql,<L_O_G>,LOG
+postgresql,LOG10(@expression),"LOG(10,CAST((@expression) AS NUMERIC))"
 postgresql,"ISNULL(@a,@b)","COALESCE(@a,@b)"
+postgresql,ISNUMERIC(@a),(@a ~ '^([0-9]+\.?[0-9]*|\.[0-9]+)$')
 postgresql,COUNT_BIG(@a),COUNT(@a)
 postgresql,SQUARE(@a),((@a)*(@a))
 postgresql,NEWID(),MD5(RANDOM()::TEXT || CLOCK_TIMESTAMP()::TEXT)
@@ -151,12 +162,12 @@ redshift,"DATEADD(hour,@hours,@datetime)",(@datetime + @hours*INTERVAL'1 hour')
 redshift,"DATEADD(d,@days,@date)",(@date + @days*INTERVAL'1 day')
 redshift,"DATEADD(dd,@days,@date)",(@date + @days*INTERVAL'1 day')
 redshift,"DATEADD(day,@days,@date)",(@date + @days*INTERVAL'1 day')
-redshift,"DATEADD(m,@months,@date)",(@date + @months*INTERVAL'1 month')
-redshift,"DATEADD(mm,@months,@date)",(@date + @months*INTERVAL'1 month')
-redshift,"DATEADD(month,@months,@date)",(@date + @months*INTERVAL'1 month')
-redshift,"DATEADD(yy,@years,@date)",(@date + @years*INTERVAL'1 year')
-redshift,"DATEADD(yyyy,@years,@date)",(@date + @years*INTERVAL'1 year')
-redshift,"DATEADD(year,@years,@date)",(@date + @years*INTERVAL'1 year')
+redshift,"DATEADD(m,@months,@date)","ADD_MONTHS(@date, @months)"
+redshift,"DATEADD(mm,@months,@date)","ADD_MONTHS(@date, @months)"
+redshift,"DATEADD(month,@months,@date)","ADD_MONTHS(@date, @months)"
+redshift,"DATEADD(yy,@years,@date)","ADD_MONTHS(@date, 12*@months)"
+redshift,"DATEADD(yyyy,@years,@date)","ADD_MONTHS(@date, 12*@months)"
+redshift,"DATEADD(year,@years,@date)","ADD_MONTHS(@date, 12*@months)"
 redshift,"DATEDIFF(d,@start, @end)",(CAST(@end AS DATE) - CAST(@start AS DATE))
 redshift,"DATEDIFF(dd,@start, @end)",(CAST(@end AS DATE) - CAST(@start AS DATE))
 redshift,"DATEDIFF(day,@start, @end)",(CAST(@end AS DATE) - CAST(@start AS DATE))
@@ -176,9 +187,11 @@ redshift,STDEV(@a),STDDEV(@a)
 redshift,RAND(),RANDOM()
 redshift,"HASHBYTES('MD5',@a)",MD5(@a)
 redshift,LEN(@a),CHAR_LENGTH(@a)
-redshift,LOG(@expression),LN(CAST(@expression AS REAL))
-redshift,LOG10(@expression),LOG(@expression)
+redshift,"LOG(@expression,@base)",(LN(CAST((@expression) AS REAL))/LN(CAST((@base) AS REAL)))
+redshift,LOG(@expression),LN(CAST((@expression) AS REAL))
+redshift,LOG10(@expression),LOG(CAST((@expression) AS REAL))
 redshift,"ISNULL(@a,@b)","COALESCE(@a,@b)"
+redshift,ISNUMERIC(@a),(@a ~ '^([0-9]+\.?[0-9]*|\.[0-9]+)$')
 redshift,COUNT_BIG(@a),COUNT(@a)
 redshift,USE @schema;,SET search_path TO @schema;
 redshift,"IF OBJECT_ID('@table', 'U') IS NULL CREATE TABLE @table (@definition);",CREATE TABLE IF NOT EXISTS @table (@definition);
@@ -307,7 +320,9 @@ netezza,YEAR(@date),EXTRACT(YEAR FROM @date)
 netezza,MONTH(@date),EXTRACT(MONTH FROM @date)
 netezza,STDEV(@a),STDDEV(@a)
 netezza,LEN(@a),CHAR_LENGTH(@a)
+netezza,"LOG(@expression,@base)",(LN(@expression)/LN(@base))
 netezza,LOG(@expression),LN(@expression)
+netezza,LOG10(@expression),LOG(@expression)
 netezza,"ISNULL(@a,@b)","COALESCE(@a,@b)"
 netezza,COUNT_BIG(@a),COUNT(@a)
 netezza,USE @schema;,SET search_path TO @schema;

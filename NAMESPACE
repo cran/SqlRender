@@ -2,6 +2,7 @@
 
 export(camelCaseToSnakeCase)
 export(createRWrapperForSql)
+export(launchSqlRenderDeveloper)
 export(loadRenderTranslateSql)
 export(readSql)
 export(renderSql)
@@ -12,3 +13,5 @@ export(translateSql)
 export(translateSqlFile)
 export(writeSql)
 import(rJava)
+importFrom(utils,install.packages)
+importFrom(utils,menu)

@@ -29,8 +29,7 @@ oracle,CAST(@a AS varchar(@b)) +,CAST(@a AS varchar(@b)) ||
 oracle,+ CAST(@a AS varchar(@b)),|| CAST(@a AS varchar(@b))
 oracle,CAST(@a AS varchar) +,CAST(@a AS varchar) ||
 oracle,+ CAST(@a AS varchar),|| CAST(@a AS varchar)
-oracle,"CONVERT(DATE, @a)","TO_DATE(@a, 'yyyymmdd')"
-oracle,CAST(@a AS VARCHAR(@b)),TO_CHAR(@a)
+oracle,"CONVERT(DATE, @a)","TO_DATE(@a, 'YYYYMMDD')"
 oracle,CAST(@a AS VARCHAR),TO_CHAR(@a)
 oracle,"DATEFROMPARTS(@year,@month,@day)","TO_DATE(TO_CHAR(@year,'0000')||'-'||TO_CHAR(@month,'00')||'-'||TO_CHAR(@day,'00'), 'YYYY-MM-DD')"
 oracle,"DATETIMEFROMPARTS(@year,@month,@day,@hour,@minute,@second,@ms)","TO_DATE(TO_CHAR(@year,'0000')||'-'||TO_CHAR(@month,'00')||'-'||TO_CHAR(@day,'00')||' '||TO_CHAR(@hour,'00')||':'||TO_CHAR(@minute,'00')||':'||TO_CHAR(@second,'00'), 'YYYY-MM-DD HH24:MI:SS')"
@@ -60,11 +59,16 @@ oracle,SELECT @a WHERE @b UNION,SELECT @a FROM DUAL WHERE @b UNION
 oracle,SELECT @a;,SELECT @a FROM DUAL;
 oracle,(SELECT @a),(SELECT @a FROM DUAL)
 oracle,SELECT @a UNION,SELECT @a FROM DUAL UNION
-oracle,SELECT @a FROM @b FROM DUAL;,SELECT @a FROM @b;
-oracle,FROM @a FROM DUAL,FROM @a
-oracle,FROM @a FROM DUAL,FROM @a
-oracle,FROM @a FROM DUAL,FROM @a
-oracle,FROM @a FROM DUAL,FROM @a
+oracle,FROM DUAL FROM DUAL, <dummy> FROM DUAL
+oracle,FROM @a UNION @b FROM DUAL UNION,FROM @a UNION @b FROM DUAL FROM DUAL UNION
+oracle,FROM @a FROM DUAL UNION,FROM @a UNION
+oracle,FROM @a UNION @b FROM DUAL;,FROM @a UNION @b FROM DUAL FROM DUAL;
+oracle,FROM @a FROM DUAL;,FROM @a;
+oracle,FROM @a UNION @b FROM DUAL WHERE,FROM @a UNION @b FROM DUAL FROM DUAL WHERE
+oracle,FROM @a FROM DUAL WHERE,FROM @a WHERE
+oracle,FROM @a UNION @b FROM DUAL),FROM @a UNION @b FROM DUAL FROM DUAL)
+oracle,FROM @b FROM DUAL),FROM @b)
+oracle,<dummy>,
 oracle,SELECT @a CASE @b COUNT(@c) @d END @e;,SELECT @a CASE @b COUNT(@c) @d END @e GROUP BY 1;
 oracle,(SELECT @a CASE @b COUNT(@c) @d END @e),(SELECT @a CASE @b COUNT(@c) @d END @e GROUP BY 1)
 oracle,GROUP BY @a GROUP BY 1,GROUP BY @a
@@ -161,7 +165,7 @@ postgresql,SELECT TOP @([0-9]+)rows @a;,SELECT @a LIMIT @rows;
 postgresql,"WITH @cte AS (SELECT @s1 '@literal' @s2)","WITH @cte AS (SELECT @s1 CAST('@literal' as TEXT) @s2)"
 redshift,"OVER (@a ORDER BY @b DESC)","OVER (@a O*D*R B* @b DESC ROWS UNBOUNDED PRECEDING)"
 redshift,"OVER (@a ORDER BY @b ASC)","OVER (@a O*D*R B* @b ASC ROWS UNBOUNDED PRECEDING)"
-redshift,"OVER (@a ORDER BY @b)","OVER (@a O*D*R B* @b ROWS UNBOUNDED PRECEDING)"
+redshift,"OVER (@a ORDER BY @((?!.*ROWS).*)b)","OVER (@a O*D*R B* @b ROWS UNBOUNDED PRECEDING)"
 redshift,"ROW_NUMBER() OVER (@a ROWS UNBOUNDED PRECEDING)","ROW_NUMBER() OVER (@a)"
 redshift,"CUME_DIST() OVER (@a ROWS UNBOUNDED PRECEDING)","CUME_DIST() OVER (@a)"
 redshift,"DENSE_RANK() OVER (@a ROWS UNBOUNDED PRECEDING)","DENSE_RANK() OVER (@a)"
@@ -398,6 +402,8 @@ impala,"DATEADD(yy,@years,@date)","ADD_MONTHS(CAST(@date AS DATE), 12 * @years)"
 impala,"DATEDIFF(d,@start, @end)","DATEDIFF(CAST(@end AS DATE), CAST(@start AS DATE))"
 impala,"DATEDIFF(dd,@start, @end)","DATEDIFF(CAST(@end AS DATE), CAST(@start AS DATE))"
 impala,"DATEDIFF(day,@start, @end)","DATEDIFF(CAST(@end AS DATE), CAST(@start AS DATE))"
+impala,"DATEFROMPARTS(@year,@month,@day)","CAST(CONCAT(CAST(@year AS VARCHAR),'-',CAST(@month AS VARCHAR),'-',CAST(@day AS VARCHAR)) AS TIMESTAMP)"
+impala,"eomonth(@date)","days_sub(add_months(trunc(CAST(@date AS TIMESTAMP), 'MM'),1),1)"
 impala,DAY(@date),DAY(CAST(@date AS DATE))
 impala,GETDATE(),NOW()
 impala,MONTH(@date),MONTH(CAST(@date AS DATE))
@@ -411,7 +417,7 @@ impala,SELECT @a INTO @b FROM @c;,CREATE TABLE @b AS\nSELECT\n@a\nFROM\n@c;
 impala,SELECT @a INTO @b;,CREATE TABLE @b AS\nSELECT\n@a;
 impala,SELECT DISTINCT @a FROM @b INTERSECT SELECT DISTINCT @a FROM @c;,SELECT t1.@a FROM (SELECT DISTINCT @a FROM @b UNION ALL SELECT DISTINCT @a FROM @c) AS t1 GROUP BY @a HAVING COUNT(*) >= 2;
 impala,(SELECT DISTINCT @a FROM @b INTERSECT SELECT DISTINCT @a FROM @c),(SELECT t1.@a FROM (SELECT DISTINCT @a FROM @b UNION ALL SELECT DISTINCT @a FROM @c) AS t1 GROUP BY @a HAVING COUNT(*) >= 2)
-impala,DELETE FROM @a WHERE @b;,CREATE TABLE #tmp AS SELECT * FROM @a WHERE NOT(@b); INSERT OVERWRITE TABLE @a SELECT * from #tmp; DROP TABLE #tmp;
+impala,DELETE FROM @a WHERE @b;,INSERT OVERWRITE TABLE @a SELECT * FROM @a WHERE NOT(@b);
 impala,DELETE FROM @a;,TRUNCATE TABLE @a;
 impala,.dbo.,.
 impala,##,<hash><hash>
@@ -419,6 +425,9 @@ impala,#,%temp_prefix%%session_id%
 impala,<hash><hash>,##
 impala,.location,.`location`
 impala,SELECT TOP @([0-9]+)rows @a;,SELECT @a LIMIT @rows;
+impala,(SELECT TOP @([0-9]+)rows @a),(SELECT @a LIMIT @rows)
+impala,DATE,TIMESTAMP
+impala,DATETIME,TIMESTAMP
 impala,BIGINT NOT NULL,BIGINT
 impala,BOOLEAN NOT NULL,BOOLEAN
 impala,CHAR NOT NULL,CHAR
@@ -432,6 +441,24 @@ impala,STRING NOT NULL,STRING
 impala,TIMESTAMP NOT NULL,TIMESTAMP
 impala,TINYINT NOT NULL,TINYINT
 impala,VARCHAR(@a) NOT NULL,VARCHAR(@a)
+impala,BIGINT NULL,BIGINT
+impala,BOOLEAN NULL,BOOLEAN
+impala,CHAR NULL,CHAR
+impala,DECIMAL NULL,DECIMAL
+impala,DOUBLE NULL,DOUBLE
+impala,FLOAT NULL,FLOAT
+impala,INT NULL,INT
+impala,REAL NULL,REAL
+impala,SMALLINT NULL,SMALLINT
+impala,STRING NULL,STRING
+impala,TIMESTAMP NULL,TIMESTAMP
+impala,TINYINT NULL,TINYINT
+impala,VARCHAR(@a) NULL,VARCHAR(@a)
+impala,"CHAR,","CHAR(1),"
+impala,"CHAR\n+","CHAR(1)\n"
+impala,"CHAR)","CHAR(1))"
+impala,"CONSTRAINT @a DEFAULT NOW()",""
+impala,stats,_stats
 netezza,"ROUND(@a,@b)","ROUND(CAST(@a AS NUMERIC),@b)"
 netezza,CAST(@a AS DATE),"TO_DATE(@a, 'yyyymmdd')"
 netezza,CAST(@a AS INT),CAST(@a AS INTEGER)
@@ -465,6 +492,7 @@ netezza,LOG10(@expression),LOG(@expression)
 netezza,"ISNULL(@a,@b)","COALESCE(@a,@b)"
 netezza,COUNT_BIG(@a),COUNT(@a)
 netezza,USE @schema;,SET search_path TO @schema;
+netezza,"IF OBJECT_ID('@table', 'U') IS NULL CREATE TABLE @table (@definition);",CREATE TABLE IF NOT EXISTS @table (@definition);
 netezza,"IF OBJECT_ID('@table', 'U') IS NOT NULL DROP TABLE @table;",DROP TABLE @table IF EXISTS;
 netezza,.dbo.,.
 netezza,CREATE TABLE #@table (@definition),CREATE TEMP TABLE @table (@definition)
@@ -472,15 +500,23 @@ netezza,CREATE CLUSTERED INDEX @index_name ON @table (@variable);,CREATE INDEX @
 netezza,CREATE UNIQUE CLUSTERED INDEX @index_name ON @table (@variable);,CREATE UNIQUE INDEX @index_name ON @table (@variable);\nCLUSTER @table USING @index_name;
 netezza,PRIMARY KEY NONCLUSTERED,PRIMARY KEY
 netezza,VARCHAR(MAX),VARCHAR(1000)
-netezza,FLOAT,NUMERIC
+netezza,FLOAT,"FLOAT(6)"
 netezza,WITH @a AS @b SELECT @c INTO #@d FROM @e;,CREATE TEMP TABLE @d\nAS\nWITH @a AS @b SELECT\n@c\nFROM\n@e;
 netezza,WITH @a AS @b SELECT @c INTO @d FROM @e;,CREATE TABLE @d\nAS\nWITH @a AS @b SELECT\n@c\nFROM\n@e;
 netezza,SELECT @a INTO #@b FROM @c;,CREATE TEMP TABLE @b\nAS\nSELECT\n@a\nFROM\n@c;
 netezza,SELECT @a INTO @b FROM @c;,CREATE TABLE @b AS\nSELECT\n@a\nFROM\n@c;
 netezza,#,
-netezza,"LEFT(@variable,@b)","STRLEFT(@variable,@b)"
-netezza,"RIGHT(@variable,@b)","STRRIGHT(@variable,@b)"
+netezza,"LEFT(@variable,@b)","SUBSTR(@variable, 0, @b+1)"
+netezza,"RIGHT(@variable,@b)","SUBSTR(@variable, LENGTH(@variable)-@b+1, @b)"
 netezza,SELECT TOP @([0-9]+)rows @a;,SELECT @a LIMIT @rows;
+netezza,(SELECT TOP @([0-9]+)rows @a),(SELECT @a LIMIT @rows)
+netezza,"CONCAT(@a, @b, @c)","CONCAT(@a, CONCAT(@b, @c))"
+netezza,"CONCAT(@a,@b)","@a || @b"
+netezza,"POWER(@a,@b)","POW(@a,@b)"
+netezza,EOMONTH(@date),LAST_DAY(@date)
+netezza,ROWCOUNT(), ROW_NUMBER()
+netezza,"DATEFROMPARTS(@year,@month,@day)","TO_DATE(TO_CHAR(@year,'0000')||'-'||TO_CHAR(@month,'00')||'-'||TO_CHAR(@day,'00'), 'YYYY-MM-DD')"
+netezza,"DATETIMEFROMPARTS(@year,@month,@day,@hour,@minute,@second,@ms)","TO_DATE(TO_CHAR(@year,'0000')||'-'||TO_CHAR(@month,'00')||'-'||TO_CHAR(@day,'00')||' '||TO_CHAR(@hour,'00')||':'||TO_CHAR(@minute,'00')||':'||TO_CHAR(@second,'00'), 'YYYY-MM-DD HH24:MI:SS')"
 bigquery,"DATEDIFF(d,@start, @end)","DATE_DIFF(cast(@end as date), cast(@start as date), DAY)"
 bigquery,"DATEDIFF(dd,@start, @end)","DATE_DIFF(cast(@end as date), cast(@start as date), DAY)"
 bigquery,"DATEDIFF(day,@start, @end)","DATE_DIFF(cast(@end as date), cast(@start as date), DAY)"

@@ -79,6 +79,27 @@ test_that("translateSQL sql server -> Oracle '+' in quote", {
   expect_equal_ignore_spaces(sql, "SELECT '+' FROM DUAL;")
 })
 
+test_that("translateSQL sql server -> Oracle union in dual", {
+  sql <- translateSql("select 1 union 2;", targetDialect = "oracle")$sql
+  expect_equal_ignore_spaces(sql, "SELECT 1 FROM DUAL UNION 2 FROM DUAL;")
+})
+
+test_that("translateSQL sql server -> Oracle table alias", {
+  sql <- translateSql("SELECT a FROM a AS a1;", targetDialect = "oracle")$sql
+  expect_equal_ignore_spaces(sql, "SELECT a FROM a a1;")
+  sql <- translateSql("SELECT a, b FROM a AS a1 JOIN b AS b1 ON a = b WHERE c = 1;", targetDialect = "oracle")$sql
+  expect_equal_ignore_spaces(sql, "SELECT a, b FROM a a1 JOIN b b1 ON a = b WHERE c = 1;")
+  sql <- translateSql("SELECT a, b FROM a as a1 INNER JOIN b AS b1 ON a = b LEFT JOIN c AS c1 ON b = c WHERE c IN (1,2,4);", targetDialect = "oracle")$sql
+  expect_equal_ignore_spaces(sql, "SELECT a, b FROM a a1 INNER JOIN b b1 ON a = b LEFT JOIN c c1 ON b = c WHERE c IN (1,2,4);")
+  sql <- translateSql("SELECT a, b, d FROM a AS a1, b AS b1;", targetDialect = "oracle")$sql
+  expect_equal_ignore_spaces(sql, "SELECT a, b, d FROM a a1, b b1;")
+  sql <- translateSql("SELECT a, b, d FROM a AS a1, b AS b1, c AS c1 WHERE c = 1;", targetDialect = "oracle")$sql
+  expect_equal_ignore_spaces(sql, "SELECT a, b, d FROM a a1, b b1, c c1 WHERE c = 1;")
+  sql <- translateSql("SELECT a, b, d FROM a AS a1,(SELECT c AS c1 FROM b AS b1) AS d1 WHERE c = 1;", targetDialect = "oracle")$sql
+  expect_equal_ignore_spaces(sql, "SELECT a, b, d FROM a a1,(SELECT c AS c1 FROM b b1) d1 WHERE c = 1;")
+})
+
+
 test_that("translateSQL sql server -> PostgreSQL USE", {
   sql <- translateSql("USE vocabulary;",
                       targetDialect = "postgresql")$sql
@@ -366,6 +387,18 @@ test_that("translateSQL ## issue on oracle", {
 })
 
 # Impala tests
+
+test_that("translateSQL sql server -> Impala clustered index not supported", {
+  sql <- translateSql("CREATE CLUSTERED INDEX idx_raw_4000 ON #raw_4000 (cohort_definition_id, subject_id, op_start_date);",
+                      targetDialect = "impala")$sql
+  expect_equal_ignore_spaces(sql, "-- impala does not support indexes")
+})
+
+test_that("translateSQL sql server -> Impala index not supported", {
+  sql <- translateSql("CREATE INDEX idx_raw_4000 ON #raw_4000 (cohort_definition_id, subject_id, op_start_date);",
+                      targetDialect = "impala")$sql
+  expect_equal_ignore_spaces(sql, "-- impala does not support indexes")
+})
 
 test_that("translateSQL sql server -> Impala USE", {
   sql <- translateSql("USE vocabulary;",
@@ -2122,6 +2155,12 @@ test_that("translateSQL sql server -> Redshift window function NTILE no sort spe
   expect_equal_ignore_spaces(sql, "select NTILE(4) OVER (procedure_concept_id ORDER BY prc_cnt) as num")
 })
 
+test_that("translateSQL sql server -> Redshift WITH cte AS () INSERT INTO tbl SELECT * FROM cte", {
+  sql <- translateSql("WITH data AS (SELECT 'test' AS user, 'secret' AS password) INSERT INTO users SELECT * FROM data;",
+                      targetDialect = "redshift")$sql
+  expect_equal_ignore_spaces(sql, "INSERT INTO users WITH data AS (SELECT  CAST('test' as TEXT) AS user, 'secret' AS password) SELECT * FROM data;")
+})
+
 test_that("translateSQL sql server -> Oracle union of two queries without FROM", {
   sql <- translateSql("SELECT 1,2 UNION SELECT 3,4;", 
                       targetDialect = "oracle")$sql
@@ -2183,9 +2222,50 @@ test_that("translateSQL sql server -> Netezza index not supported", {
   expect_equal_ignore_spaces(sql, "-- netezza does not support indexes")
 })
 
+test_that("translateSQL sql server -> Redshift clustered index not supported", {
+  sql <- translateSql("CREATE CLUSTERED INDEX idx_raw_4000 ON #raw_4000 (cohort_definition_id, subject_id, op_start_date);",
+                      targetDialect = "redshift")$sql
+  expect_equal_ignore_spaces(sql, "-- redshift does not support indexes")
+})
+
+test_that("translateSQL sql server -> Redshift index not supported", {
+  sql <- translateSql("CREATE INDEX idx_raw_4000 ON #raw_4000 (cohort_definition_id, subject_id, op_start_date);",
+                      targetDialect = "redshift")$sql
+  expect_equal_ignore_spaces(sql, "-- redshift does not support indexes")
+})
 
 test_that("translateSQL sql server -> Oracle BIGINT in conditional create table", {
   sql <- translateSql("IF OBJECT_ID('test', 'U') IS NULL CREATE TABLE test (	x BIGINT);",
                       targetDialect = "oracle")$sql
   expect_equal_ignore_spaces(sql, "BEGIN\n  EXECUTE IMMEDIATE 'CREATE TABLE test  (x NUMBER(19))';\nEXCEPTION\n  WHEN OTHERS THEN\n    IF SQLCODE != -955 THEN\n      RAISE;\n    END IF;\nEND;")
+})
+
+test_that("translateSQL sql server -> Oracle analyze table", {
+  sql <- translateSql("UPDATE STATISTICS results_schema.heracles_results;",
+                      targetDialect = "oracle")$sql
+  expect_equal_ignore_spaces(sql, "-- ANALYZE should not be used to collect optimizer statistics")
+})
+
+test_that("translateSQL sql server -> Redshift analyze table", {
+  sql <- translateSql("UPDATE STATISTICS results_schema.heracles_results;",
+                      targetDialect = "redshift")$sql
+  expect_equal_ignore_spaces(sql, "ANALYZE results_schema.heracles_results;")
+})
+
+test_that("translateSQL sql server -> Postgres analyze table", {
+  sql <- translateSql("UPDATE STATISTICS results_schema.heracles_results;",
+                      targetDialect = "postgresql")$sql
+  expect_equal_ignore_spaces(sql, "ANALYZE results_schema.heracles_results;")
+})
+
+test_that("translateSQL sql server -> Impala analyze table", {
+  sql <- translateSql("UPDATE STATISTICS results_schema.heracles_results;",
+                      targetDialect = "impala")$sql
+  expect_equal_ignore_spaces(sql, "COMPUTE STATS results_schema.heracles_results;")
+})
+
+test_that("translateSQL sql server -> Netezza analyze table", {
+  sql <- translateSql("UPDATE STATISTICS results_schema.heracles_results;",
+                      targetDialect = "netezza")$sql
+  expect_equal_ignore_spaces(sql, "GENERATE STATISTICS ON results_schema.heracles_results;")
 })

@@ -38,8 +38,16 @@ renderSql(sql,x = 1)$sql
 renderSql(sql,x = 2)$sql
 
 ## ----tidy=TRUE,echo=TRUE-------------------------------------------------
-sql <- "SELECT * FROM table {@x IN (1,2,3)} ? {WHERE id = 1}; "
+sql <- "SELECT * FROM table {@x IN (1,2,3)} ? {WHERE id = 1};"
 renderSql(sql,x = 2)$sql
+
+## ----tidy=TRUE,echo=TRUE-------------------------------------------------
+sql <- "SELECT * FROM table {@x IN (1,2,3) | @y != 3} ? {WHERE id = @x AND value = @y};"
+renderSql(sql,x = 4, y = 4)$sql
+
+sql <- "SELECT * FROM table {(@x == 1 | @x == 3) & @y != 3} ? {WHERE id = @x AND val = @y};"
+renderSql(sql,x = 3, y = 4)$sql
+
 
 ## ----tidy=TRUE,echo=TRUE-------------------------------------------------
 sql <- "SELECT DATEDIFF(dd,a,b) FROM table; "

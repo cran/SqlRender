@@ -17,7 +17,7 @@ Features
 - Supports a simple markup syntax for making SQL parameterized, and renders parameterized SQL (containing the markup syntax) to executable SQL
 - The syntax supports defining default parameter values
 - The syntax supports if-then-else structures
-- Has functions for translating SQL from one dialect (Microsoft SQL Server) to other dialects (Oracle, PostgreSQL, Amazon RedShift, Impala, IBM Netezza, Google BigQuery, and Microsoft PDW)
+- Has functions for translating SQL from one dialect (Microsoft SQL Server) to other dialects (Oracle, PostgreSQL, Amazon RedShift, Impala, IBM Netezza, Google BigQuery, Microsoft PDW, and SQLite)
 - Can be used as R package, Java library, or as stand-alone executable through a command-line interface
 
 Examples
@@ -25,7 +25,7 @@ Examples
 This exampe shows the use of parameters, as well as SqlRender's {if} ? {then} : {else} syntax:
 
 ```r
-sql <- renderSql("SELECT * FROM @a; {@b != ''}?{USE @b;}", a = "my_table", b = "my_schema")$sql
+sql <- render("SELECT * FROM @a; {@b != ''}?{USE @b;}", a = "my_table", b = "my_schema")
 ```
 
 will produce the variable `sql` containing this value: 
@@ -37,7 +37,7 @@ will produce the variable `sql` containing this value:
 subsequently running this code
 
 ```r
-sql <- translateSql(sql, "sql server", "oracle")$sql
+sql <- translate(sql, "sql server", "oracle")
 ```
 
 will produce the variable `sql` containing this value: 

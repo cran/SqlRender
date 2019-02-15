@@ -2,10 +2,9 @@
 % Please edit documentation in R/RenderSql.R
 \name{translateSql}
 \alias{translateSql}
-\title{translateSql}
+\title{Deprecated: Translates SQL from one dialect to another}
 \usage{
-translateSql(sql = "", targetDialect, oracleTempSchema = NULL,
-  sourceDialect)
+translateSql(sql = "", targetDialect, oracleTempSchema = NULL)
 }
 \arguments{
 \item{sql}{The SQL to be translated}
@@ -14,22 +13,12 @@ translateSql(sql = "", targetDialect, oracleTempSchema = NULL,
 "redshift" are supported}
 
 \item{oracleTempSchema}{A schema that can be used to create temp tables in when using Oracle or Impala.}
-
-\item{sourceDialect}{Deprecated: The source dialect. Currently, only "sql server" for Microsoft SQL Server
-is supported}
 }
 \value{
 A list containing the following elements: \describe{ \item{originalSql}{The original parameterized
 SQL code} \item{sql}{The translated SQL} }
 }
 \description{
-\code{translateSql} translates SQL from one dialect to another
-}
-\details{
-This function takes SQL in one dialect and translates it into another. It uses simple pattern
-replacement, so its functionality is limited.
-}
-\examples{
-translateSql("USE my_schema;", targetDialect = "oracle")
-
+This function has been deprecated. Use \code{\link{translate}} instead. This new 
+function returns a character vector instead of a list.
 }

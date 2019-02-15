@@ -8,67 +8,67 @@ knitr::opts_chunk$set(
 
 ## ----tidy=TRUE,echo=TRUE-------------------------------------------------
 sql <- "SELECT * FROM table WHERE id = @a;"
-renderSql(sql, a=123)$sql
+render(sql, a=123)
 
 ## ----tidy=TRUE,echo=TRUE-------------------------------------------------
 sql <- "SELECT * FROM @x WHERE id = @a;"
-renderSql(sql, x="my_table", a=123)$sql
+render(sql, x="my_table", a=123)
 
 ## ----tidy=TRUE,echo=TRUE-------------------------------------------------
 sql <- "SELECT * FROM table WHERE id IN (@a);"
-renderSql(sql,a = c(1,2,3))$sql
+render(sql,a = c(1,2,3))
 
 ## ----tidy=TRUE,echo=TRUE-------------------------------------------------
 sql <- "{DEFAULT @a = 1} SELECT * FROM table WHERE id = @a;"
-renderSql(sql)$sql
-renderSql(sql,a=2)$sql
+render(sql)
+render(sql,a=2)
 
 ## ----tidy=TRUE,echo=TRUE-------------------------------------------------
 sql <- "{DEFAULT @a = 1} {DEFAULT @x = 'my_table'} SELECT * FROM @x WHERE id = @a;"
-renderSql(sql)$sql
+render(sql)
 
 ## ----tidy=TRUE,echo=TRUE-------------------------------------------------
 sql <- "SELECT * FROM table {@x} ? {WHERE id = 1}"
-renderSql(sql,x = FALSE)$sql
-renderSql(sql,x = TRUE)$sql
+render(sql,x = FALSE)
+render(sql,x = TRUE)
 
 ## ----tidy=TRUE,echo=TRUE-------------------------------------------------
 sql <- "SELECT * FROM table {@x == 1} ? {WHERE id = 1};"
-renderSql(sql,x = 1)$sql
-renderSql(sql,x = 2)$sql
+render(sql,x = 1)
+render(sql,x = 2)
 
 ## ----tidy=TRUE,echo=TRUE-------------------------------------------------
 sql <- "SELECT * FROM table {@x IN (1,2,3)} ? {WHERE id = 1};"
-renderSql(sql,x = 2)$sql
+render(sql,x = 2)
 
 ## ----tidy=TRUE,echo=TRUE-------------------------------------------------
 sql <- "SELECT * FROM table {@x IN (1,2,3) | @y != 3} ? {WHERE id = @x AND value = @y};"
-renderSql(sql,x = 4, y = 4)$sql
+render(sql,x = 4, y = 4)
 
 sql <- "SELECT * FROM table {(@x == 1 | @x == 3) & @y != 3} ? {WHERE id = @x AND val = @y};"
-renderSql(sql,x = 3, y = 4)$sql
+render(sql,x = 3, y = 4)
 
 
 ## ----tidy=TRUE,echo=TRUE-------------------------------------------------
 sql <- "SELECT DATEDIFF(dd,a,b) FROM table; "
-translateSql(sql,targetDialect = "oracle")$sql
+translate(sql,targetDialect = "oracle")
 
 ## ----echo=FALSE----------------------------------------------------------
 funs <- c("ABS", "ACOS", "ASIN", "ATAN", "AVG", "CAST", "CEILING", "CHARINDEX", "CONCAT", "COS", "COUNT", "COUNT_BIG", "DATEADD", "DATEDIFF", "DATEFROMPARTS", "DATETIMEFROMPARTS", "DAY", "EOMONTH", "EXP", "FLOOR", "GETDATE", "HASHBYTES*", "ISNULL", "ISNUMERIC", "LEFT", "LEN", "LOG", "LOG10", "LOWER", "LTRIM", "MAX", "MIN", "MONTH", "NEWID", "PI", "POWER", "RAND", "RANK", "RIGHT", "ROUND", "ROW_NUMBER", "RTRIM", "SIN", "SQRT", "SQUARE", "STDEV", "SUM", "TAN", "UPPER", "VAR", "YEAR", "")
 
 
-knitr::kable(matrix(funs, ncol = 4), col.names = rep("Function",4), caption = "Functions supported by translateSql")
+knitr::kable(matrix(funs, ncol = 4), col.names = rep("Function",4), caption = "Functions supported by translate")
 
 ## ----tidy=TRUE,echo=TRUE-------------------------------------------------
 sql <- "SELECT * FROM #children;"
-translateSql(sql, targetDialect = "oracle", oracleTempSchema = "temp_schema")$sql
+translate(sql, targetDialect = "oracle", oracleTempSchema = "temp_schema")
 
 ## ----tidy=TRUE,echo=TRUE-------------------------------------------------
 foo <- function(databaseSchema, dbms) {
   database <- strsplit(databaseSchema ,"\\.")[[1]][1]
   sql <- "SELECT * FROM @databaseSchema.person; USE @database; SELECT * FROM person;"
-  sql <- renderSql(sql, databaseSchema = databaseSchema, database = database)$sql
-  sql <- translateSql(sql, targetDialect = dbms)$sql
+  sql <- render(sql, databaseSchema = databaseSchema, database = database)
+  sql <- translate(sql, targetDialect = dbms)
   return(sql)
 }
 foo("cdm_data.dbo", "sql server")
@@ -78,7 +78,7 @@ foo("cdm_data", "postgresql")
 #  launchSqlRenderDeveloper()
 
 ## ----tidy=TRUE,eval=FALSE------------------------------------------------
-#  translateSqlFile("parameterizedSql.txt","renderedSql.txt")
+#  translateFile("parameterizedSql.txt","renderedSql.txt")
 
 ## ----eval=FALSE----------------------------------------------------------
 #  createRWrapperForSql(sqlFilename = "test.sql",

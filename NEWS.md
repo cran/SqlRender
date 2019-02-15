@@ -1,3 +1,27 @@
+SqlRender 1.6.0
+===============
+
+Changes:
+
+1. Major overhaul of BigQuery translation.
+
+2. Added support for SQLite.
+
+3. ISNUMERIC translation implemented for Impala, Netezza, and BigQuery.
+
+4. Performance improvement for Impala temp tables (CREATE TABLE ... STORED AS PARQUET).
+
+5. Adding functions `render` and `translate` that output strings instead of lists. Deprecating `renderSql` and `translateSql`.
+
+6. Added function `translateSingleStatement`.
+
+Bugfixes:
+
+1. Dropping WHERE clause when translating CREATE INDEX for PDW.
+
+2. Fixed PDW's equivalent of CREATE TABLE IF NOT EXISTS.
+
+
 SqlRender 1.5.3
 ===============
 

@@ -28,6 +28,12 @@ test_that("translate sql server -> Oracle DATEADD", {
   expect_equal_ignore_spaces(sql, "SELECT (drug_era_end_date + NUMTODSINTERVAL(30, 'day')) FROM drug_era;")
 })
 
+test_that("translate sql server -> Oracle functional index", {
+    sql <- translate("CREATE INDEX name1 ON someTable (firstColumn,secondColumn) WHERE someCondition;", 
+                            targetDialect = "oracle")
+    expect_equal_ignore_spaces(sql, "CREATE INDEX name1 ON someTable (CASE WHEN someCondition THEN firstColumn END, CASE WHEN someCondition THEN secondColumn END);")
+})
+
 test_that("translate sql server -> Oracle USE", {
   sql <- translate("USE vocabulary;", targetDialect = "oracle")
   expect_equal_ignore_spaces(sql, "ALTER SESSION SET current_schema = vocabulary;")
@@ -511,9 +517,9 @@ test_that("translate sql server -> Impala TOP in subqueries", {
 })
 
 test_that("translate sql server -> Impala CREATE TABLE with NOT NULL", {
-  sql <- translate("CREATE TABLE a (c1 BIGINT NOT NULL, c2 BOOLEAN NOT NULL, c3 CHAR NOT NULL, c4 DECIMAL NOT NULL, c5 DOUBLE NOT NULL, c6 FLOAT NOT NULL, c7 INT NOT NULL, c8 REAL NOT NULL, c9 SMALLINT NOT NULL, c10 STRING NOT NULL, c11 TIMESTAMP NOT NULL, c12 TINYINT NOT NULL, c13 VARCHAR(10) NOT NULL, c14 DATE NOT NULL, c15 DATETIME NOT NULL)",
+  sql <- translate("CREATE TABLE a (c1 BIGINT NOT NULL, c2 BOOLEAN NOT NULL, c3 CHAR NOT NULL, c4 DECIMAL NOT NULL, c5 DOUBLE NOT NULL, c6 FLOAT NOT NULL, c7 INT NOT NULL, c8 REAL NOT NULL, c9 SMALLINT NOT NULL, c10 STRING NOT NULL, c11 TIMESTAMP NOT NULL, c12 TINYINT NOT NULL, c13 VARCHAR(10) NOT NULL, c14 DATE NOT NULL, c15 DATETIME NOT NULL, c16 INTEGER NOT NULL)",
                       targetDialect = "impala")
-  expect_equal_ignore_spaces(sql, "CREATE TABLE a (c1 BIGINT, c2 BOOLEAN, c3 CHAR(1), c4 DECIMAL, c5 DOUBLE, c6 FLOAT, c7 INT, c8 REAL, c9 SMALLINT, c10 STRING, c11 TIMESTAMP, c12 TINYINT, c13 VARCHAR(10), c14 TIMESTAMP, c15 TIMESTAMP)")
+  expect_equal_ignore_spaces(sql, "CREATE TABLE a (c1 BIGINT, c2 BOOLEAN, c3 CHAR(1), c4 DECIMAL, c5 DOUBLE, c6 FLOAT, c7 INT, c8 REAL, c9 SMALLINT, c10 STRING, c11 TIMESTAMP, c12 TINYINT, c13 VARCHAR(10), c14 TIMESTAMP, c15 TIMESTAMP, c16 INT)")
 })
 
 test_that("translate sql server -> Impala CREATE TABLE with NULL", {
@@ -566,6 +572,12 @@ test_that("translate sql server -> Impala ISNUMERIC", {
     sql <- translate("SELECT some FROM table WHERE ISNUMERIC(a) = 0", targetDialect = "impala")
     expect_equal_ignore_spaces(sql, "SELECT some FROM table WHERE case when regexp_like(a,'^([0-9]+\\.?[0-9]*|\\.[0-9]+)$') then 1 else 0 end = 0")
   })
+
+test_that("translate sql server -> Impala data types", {
+  sql <- translate("CREATE TABLE a (c1 DOUBLE PRECISION)",
+                      targetDialect = "impala")
+  expect_equal_ignore_spaces(sql, "CREATE TABLE a (c1 DOUBLE)")
+})
 
 # Netezza tests
 
@@ -710,11 +722,11 @@ test_that("translate sql server -> netezza TOP subquery", {
 
 test_that("translate sql server -> netezza ISNUMERIC", {
     sql <- translate("SELECT ISNUMERIC(a) FROM b", targetDialect = "netezza")
-    expect_equal_ignore_spaces(sql, "SELECT CASE WHEN REGEXP_LIKE(a,'^([0-9]+\\.?[0-9]*|\\.[0-9]+)$') THEN 1 ELSE 0 END FROM b")
+    expect_equal_ignore_spaces(sql, "SELECT CASE WHEN translate(a,'0123456789','') in ('','.','-','-.') THEN 1 ELSE 0 END FROM b")
     sql <- translate("SELECT some FROM table WHERE ISNUMERIC(a) = 1", targetDialect = "netezza")
-    expect_equal_ignore_spaces(sql, "SELECT some FROM table WHERE CASE WHEN REGEXP_LIKE(a,'^([0-9]+\\.?[0-9]*|\\.[0-9]+)$') THEN 1 ELSE 0 END = 1")
+    expect_equal_ignore_spaces(sql, "SELECT some FROM table WHERE CASE WHEN translate(a,'0123456789','') in ('','.','-','-.') THEN 1 ELSE 0 END = 1")
     sql <- translate("SELECT some FROM table WHERE ISNUMERIC(a) = 0", targetDialect = "netezza")
-    expect_equal_ignore_spaces(sql, "SELECT some FROM table WHERE CASE WHEN REGEXP_LIKE(a,'^([0-9]+\\.?[0-9]*|\\.[0-9]+)$') THEN 1 ELSE 0 END = 0")
+    expect_equal_ignore_spaces(sql, "SELECT some FROM table WHERE CASE WHEN translate(a,'0123456789','') in ('','.','-','-.') THEN 1 ELSE 0 END = 0")
   })
 
 test_that("translate sql server -> postgres date to varchar", {
@@ -888,10 +900,10 @@ test_that("translate sql server -> postgres ISNUMERIC", {
   expect_equal_ignore_spaces(sql, "SELECT a FROM table WHERE CASE WHEN (a ~ '^([0-9]+\\.?[0-9]*|\\.[0-9]+)$') THEN 1 ELSE 0 END = 0")
 })
 
-test_that("translate sql server -> bigquery lowercase all but strings", {
-  sql <- translate("SELECT X.Y, 'Mixed Case String' FROM \"MixedCaseTableName.T\" GROUP BY X.Y",
+test_that("translate sql server -> bigquery lowercase all but strings and variables", {
+  sql <- translate("SELECT X.Y, 'Mixed Case String' FROM \"MixedCaseTableName.T\" where x.z=@camelCaseVar GROUP BY X.Y",
                       targetDialect = "bigquery")
-  expect_equal_ignore_spaces(sql, "select x.y, 'Mixed Case String' from \"MixedCaseTableName.T\" group by x.y")
+  expect_equal_ignore_spaces(sql, "select x.y, 'Mixed Case String' from \"MixedCaseTableName.T\" where x.z=@camelCaseVar group by x.y")
 })
 
 test_that("translate sql server -> bigquery common table expression column list", {

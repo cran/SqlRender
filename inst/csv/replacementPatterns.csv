@@ -110,7 +110,10 @@ oracle,"FROM @a AS @b WHERE","FROM @a @b WHERE"
 oracle,"FROM @a AS @b)","FROM @a @b)"
 oracle,"JOIN @a AS @b ON","JOIN @a @b ON"
 oracle,UPDATE STATISTICS @a;,-- ANALYZE should not be used to collect optimizer statistics
+oracle,"CONVERT(VARBINARY, CONCAT('0x', @a), 1)","TO_NUMBER(@a, RPAD('X', LENGTH(@a), 'X'))"
 postgresql,"ROUND(@a,@b)","ROUND(CAST(@a AS NUMERIC),@b)"
+postgresql,"HASHBYTES('MD5',@a)","MD5(@a)"
+postgresql,"CONVERT(VARBINARY, CONCAT('0x', @a), 1)","CAST(CONCAT('x', @a) AS BIT(32))"
 postgresql,"CONVERT(DATE, @a)","TO_DATE(@a, 'yyyymmdd')"
 postgresql,"DATEADD(second,@seconds,@datetime)",(@datetime + @seconds*INTERVAL'1 second')
 postgresql,"DATEADD(minute,@minutes,@datetime)",(@datetime + @minutes*INTERVAL'1 minute')
@@ -144,7 +147,6 @@ postgresql,EOMONTH(@date),"(DATE_TRUNC('MONTH', @date) + INTERVAL '1 MONTH - 1 d
 postgresql,STDEV(@a),STDDEV(@a)
 postgresql,VAR(@a),VARIANCE(@a)
 postgresql,RAND(),RANDOM()
-postgresql,"HASHBYTES('MD5',@a)",MD5(@a)
 postgresql,LEN(@a),CHAR_LENGTH(@a)
 postgresql,"CHARINDEX(@a,@b)","STRPOS(@b,@a)"
 postgresql,"LOG(@expression,@base)","<L_O_G>(CAST((@base) AS NUMERIC),CAST((@expression) AS NUMERIC))"
@@ -152,7 +154,7 @@ postgresql,LOG(@expression),LN(CAST((@expression) AS REAL))
 postgresql,<L_O_G>,LOG
 postgresql,LOG10(@expression),"LOG(10,CAST((@expression) AS NUMERIC))"
 postgresql,"ISNULL(@a,@b)","COALESCE(@a,@b)"
-postgresql,"ISNUMERIC(@a)","CASE WHEN (@a ~ '^([0-9]+\.?[0-9]*|\.[0-9]+)$') THEN 1 ELSE 0 END"
+postgresql,"ISNUMERIC(@a)","CASE WHEN (CAST(@a AS VARCHAR) ~ '^([0-9]+\.?[0-9]*|\.[0-9]+)$') THEN 1 ELSE 0 END"
 postgresql,COUNT_BIG(@a),COUNT(@a)
 postgresql,SQUARE(@a),((@a)*(@a))
 postgresql,NEWID(),MD5(RANDOM()::TEXT || CLOCK_TIMESTAMP()::TEXT)
@@ -270,6 +272,7 @@ redshift,VAR(@a),VARIANCE(@a)
 redshift,STDEV(@a),STDDEV(@a)
 redshift,RAND(),RANDOM()
 redshift,"HASHBYTES('MD5',@a)",MD5(@a)
+redshift,"CONVERT(VARBINARY, CONCAT('0x', @a), 1)","STRTOL(LEFT(@a, 15), 16)"
 redshift,LEN(@a),CHAR_LENGTH(@a)
 redshift,"LOG(@expression,@base)",(LN(CAST((@expression) AS REAL))/LN(CAST((@base) AS REAL)))
 redshift,LOG(@expression),LN(CAST((@expression) AS REAL))
@@ -361,7 +364,6 @@ redshift,"CONCAT(@a,@b,@tail)","CONCAT(@a,CONCAT(@b,@tail))"
 redshift,"ISDATE(@s)","REGEXP_INSTR(@s, '^(\\d{4}[/\-]?[01]\\d[/\-]?[0123]\\d)([ T]([0-1][0-9]|[2][0-3]):([0-5][0-9])(:[0-5][0-9](.\\d+)?)?)?$')"
 redshift,"ISNUMERIC(@s)","REGEXP_INSTR(@s, '^[\-\+]?(\\d*\\.)?\\d+([Ee][\-\+]?\\d+)?$')"
 redshift,"PATINDEX(@pattern,@expression)","REGEXP_INSTR(@expression, case when LEFT(@pattern,1)<>'%' and RIGHT(@pattern,1)='%' then '^' else '' end||TRIM('%' FROM REPLACE(@pattern,'_','.'))||case when LEFT(@pattern,1)='%' and RIGHT(@pattern,1)<>'%' then '$' else '' end)"
-redshift,"WITH @cte AS (SELECT @s1 '@literal' @s2)","WITH @cte AS (SELECT @s1 CAST('@literal' as TEXT) @s2)"
 redshift,^,#
 redshift,"CONVERT(DATE, @a)","CAST(@a as DATE)"
 redshift,"CONVERT(TIMESTAMPTZ, @a)","CONVERT(TIMESTAMP WITH TIME ZONE, @a)"
@@ -500,6 +502,8 @@ impala,"DEFAULT NOW()",""
 impala,stats,_stats
 impala,UPDATE STATISTICS @a;,COMPUTE STATS @a;
 impala,"ISNUMERIC(@a)","case when regexp_like(@a,'^([0-9]+\.?[0-9]*|\.[0-9]+)$') then 1 else 0 end"
+impala,"HASHBYTES('MD5',@a)","fnv_hash(@a)"
+impala,"CONVERT(VARBINARY, CONCAT('0x', @a), 1)","cast(conv(@a, 16, 10) as int)"
 netezza,HINT DISTRIBUTE_ON_KEY(@key)\n@statement;,HINT DISTRIBUTE_ON_KEY(@key)\n@statement\nDISTRIBUTE ON (@key);
 netezza,HINT DISTRIBUTE_ON_RANDOM\n@statement;,HINT DISTRIBUTE_ON_RANDOM\n@statement\nDISTRIBUTE ON RANDOM;
 netezza,CREATE TABLE #@table (@definition);,CREATE TEMP TABLE @table (@definition);
@@ -507,6 +511,8 @@ netezza,WITH @a AS @b SELECT @c INTO #@d FROM @e;,CREATE TEMP TABLE @d\nAS\nWITH
 netezza,WITH @a AS @b SELECT @c INTO @d FROM @e;,CREATE TABLE @d\nAS\nWITH @a AS @b SELECT\n@c\nFROM\n@e;
 netezza,SELECT @a INTO #@b FROM @c;,CREATE TEMP TABLE @b\nAS\nSELECT\n@a\nFROM\n@c;
 netezza,SELECT @a INTO @b FROM @c;,CREATE TABLE @b\nAS\nSELECT\n@a\nFROM\n@c;
+netezza,SELECT @a INTO #@b;,CREATE TEMP TABLE @b\nAS\nSELECT\n@a;
+netezza,SELECT @a INTO @b;,CREATE TABLE @b\nAS\nSELECT @a;
 netezza,"ROUND(@a,@b)","ROUND(CAST(@a AS NUMERIC),@b)"
 netezza,CAST(@a AS DATE),"TO_DATE(@a, 'yyyymmdd')"
 netezza,CAST(@a AS INT),CAST(@a AS INTEGER)
@@ -565,10 +571,11 @@ netezza,UPDATE STATISTICS @a;,GENERATE STATISTICS ON @a;
 netezza,DATETIME,TIMESTAMP
 netezza,DATETIME2,TIMESTAMP
 netezza,"ISNUMERIC(@a)","CASE WHEN translate(@a,'0123456789','') in ('','.','-','-.') THEN 1 ELSE 0 END"
+netezza,"HASHBYTES('MD5',@a)","hash(@a)"
+netezza,"CONVERT(VARBINARY, '0x' || @a, 1)","hex_to_binary(@a)"
+bigquery,"CONVERT(VARBINARY, CONCAT('0x', @a), 1)","safe_cast(concat('0x', @a) as int64)"
 bigquery,SELECT TOP @([0-9]+)rows @a;,SELECT @a LIMIT @rows;
 bigquery,(SELECT TOP @([0-9]+)rows @a),(SELECT @a LIMIT @rows)
-bigquery,WITH @a (@b) AS (,WITH @a AS (
-bigquery,", @a (@b) AS (",", @a AS ("
 bigquery,"DATEDIFF(d,@start, @end)","DATE_DIFF(cast(@end as date), cast(@start as date), DAY)"
 bigquery,"DATEDIFF(dd,@start, @end)","DATE_DIFF(cast(@end as date), cast(@start as date), DAY)"
 bigquery,"DATEDIFF(day,@start, @end)","DATE_DIFF(cast(@end as date), cast(@start as date), DAY)"
@@ -582,14 +589,14 @@ bigquery,"DATEADD(yy,@years,@date)","DATE_ADD(@date, INTERVAL @years YEAR)"
 bigquery,"DATEADD(yyyy,@years,@date)","DATE_ADD(@date, INTERVAL @years YEAR)"
 bigquery,"DATEADD(year,@years,@date)","DATE_ADD(@date, INTERVAL @years YEAR)"
 bigquery,"STDEV(@a)","STDDEV(@a)"
-bigquery,"HASHBYTES('MD5',@a)","SHA1(@a)"
+bigquery,"HASHBYTES('MD5',@a)","md5(@a)"
 bigquery,"LEN(@a)","LENGTH(@a)"
 bigquery,"COUNT_BIG(@a)","COUNT(@a)"
 bigquery,"CAST(@a as:string)","CAST(@a as string)"
 bigquery,"CAST(@a as:integer)","CAST(@a as int64)"
 bigquery,"CAST(@a as:float)","CAST(@a as float64)"
 bigquery,"IF OBJECT_ID('@table', 'U') IS NOT NULL DROP TABLE @table;",DROP TABLE IF EXISTS @table;
-bigquery,WITH @a SELECT @b INTO @c FROM @d;,CREATE TABLE @c AS\nWITH @a\nSELECT\n@b\nFROM\n@d;
+bigquery,WITH @a SELECT @b INTO @c FROM @d;,CREATE TABLE @c AS WITH @a SELECT @b FROM @d;
 bigquery,SELECT @a INTO @b FROM @c;,CREATE TABLE @b AS\nSELECT\n@a\nFROM\n@c;
 bigquery,SELECT @a INTO @b;,CREATE TABLE @b\nAS\nSELECT\n@a;
 bigquery,WITH @a INSERT INTO @b SELECT @c;,INSERT INTO @b WITH @a SELECT @c;
@@ -656,7 +663,7 @@ sqlite,"DATEDIFF(d,@start,@end)","JULIANDAY(@end, 'unixepoch') - JULIANDAY(@star
 sqlite,"DATEDIFF(dd,@start,@end)","JULIANDAY(@end, 'unixepoch') - JULIANDAY(@start, 'unixepoch')"
 sqlite,"DATEDIFF(day,@start,@end)","JULIANDAY(@end, 'unixepoch') - JULIANDAY(@start, 'unixepoch')"
 sqlite,"CONVERT(VARCHAR,@date,112)","STRFTIME('%Y%m%d', @date)"
-sqlite,GETDATE(),STRFTIME('%s','now')
+sqlite,GETDATE(),"STRFTIME('%s','now')"
 sqlite,+ '@a',|| '@a'
 sqlite,'@a' +,'@a' ||
 sqlite,CAST(@a AS varchar(@b)) +,CAST(@a AS varchar(@b)) ||
@@ -677,7 +684,8 @@ sqlite,"ISNULL(@a,@b)","COALESCE(@a,@b)"
 sqlite,"ISNUMERIC(@a)","CASE WHEN @a GLOB '[0-9]*' OR @a GLOB '[0-9]*.[0-9]*' OR @a GLOB '.[0-9]*' THEN 1 ELSE 0 END"
 sqlite,COUNT_BIG(@a),COUNT(@a)
 sqlite,NEWID(),RANDOM()
-sqlite,"RIGHT(@a,@b)","RIGHTSTR(@a,@b)"
+sqlite,"RIGHT(@a,@b)","SUBSTR(@a,-@b)"
+sqlite,"LEFT(@str,@chars)","SUBSTR(@str,1,@chars)"
 sqlite,"IF OBJECT_ID('@table', 'U') IS NULL CREATE TABLE @table (@definition);",CREATE TABLE IF NOT EXISTS @table (@definition);
 sqlite,"IF OBJECT_ID('@table', 'U') IS NOT NULL DROP TABLE @table;",DROP TABLE IF EXISTS @table;
 sqlite,"IF OBJECT_ID('tempdb..#@table', 'U') IS NOT NULL DROP TABLE @table;",DROP TABLE IF EXISTS @table;
@@ -685,6 +693,9 @@ sqlite,.dbo.,.
 sqlite,CREATE TABLE #@table (@definition),CREATE TEMP TABLE @table (@definition)
 sqlite,CREATE CLUSTERED INDEX @index_name ON @table (@variable);,CREATE INDEX @index_name ON @table (@variable);
 sqlite,CREATE UNIQUE CLUSTERED INDEX @index_name ON @table (@variable);,CREATE UNIQUE INDEX @index_name ON @table (@variable);
+sqlite,CREATE INDEX @index_name ON @schema.@table (@variable);,CREATE INDEX @index_name ON @table (@variable);
+sqlite,CREATE UNIQUE INDEX @index_name ON @schema.@table (@variable);,CREATE UNIQUE INDEX @index_name ON @table (@variable);
+sqlite,DROP INDEX @schema.@index_name;,DROP INDEX @index_name;
 sqlite,PRIMARY KEY NONCLUSTERED,PRIMARY KEY
 sqlite,VARCHAR(@a),TEXT
 sqlite,VARCHAR,TEXT

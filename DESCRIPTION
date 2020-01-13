@@ -1,8 +1,8 @@
 Package: SqlRender
 Type: Package
 Title: Rendering Parameterized SQL and Translation to Dialects
-Version: 1.6.2
-Date: 2019-06-24
+Version: 1.6.3
+Date: 2020-01-13
 Authors@R: c(
   person("Martijn", "Schuemie", , "schuemie@ohdsi.org", role = c("aut", "cre")),
   person("Marc", "Suchard", role = c("aut"))
@@ -19,10 +19,10 @@ BugReports: https://github.com/OHDSI/SqlRender/issues
 Imports: rJava
 Suggests: testthat, knitr, rmarkdown, shiny, shinydashboard
 LazyData: false
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.2
 NeedsCompilation: no
-Packaged: 2019-06-24 13:07:23 UTC; mschuemi
+Packaged: 2020-01-13 10:16:14 UTC; MSCHUEMI
 Author: Martijn Schuemie [aut, cre],
   Marc Suchard [aut]
 Repository: CRAN
-Date/Publication: 2019-06-24 13:20:08 UTC
+Date/Publication: 2020-01-13 13:10:02 UTC

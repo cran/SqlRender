@@ -383,6 +383,63 @@ test_that("translate sql server -> Redshift select random row using hash", {
                              "SELECT column FROM (SELECT column, ROW_NUMBER() OVER (ORDER BY MD5(CAST(person_id AS varchar))) tmp WHERE rn <= 1")
 })
 
+test_that("translate sql server -> Big Query select random row using hash", {
+  sql <- translate("SELECT column FROM (SELECT column, ROW_NUMBER() OVER (ORDER BY HASHBYTES('MD5',CAST(person_id AS varchar))) tmp WHERE rn <= 1",
+      targetDialect = "bigquery")
+  expect_equal_ignore_spaces(sql,
+    "select column from (select column, row_number() over (order by md5(cast(person_id as STRING))) tmp where rn <= 1")
+})
+
+test_that("translate sql server -> Impala select random row using hash", {
+  sql <- translate("SELECT column FROM (SELECT column, ROW_NUMBER() OVER (ORDER BY HASHBYTES('MD5',CAST(person_id AS varchar))) tmp WHERE rn <= 1",
+      targetDialect = "impala")
+  expect_equal_ignore_spaces(sql,
+    "SELECT column FROM (SELECT column, ROW_NUMBER() OVER (ORDER BY fnv_hash(CAST(person_id AS varchar))) tmp WHERE rn <= 1")
+})
+
+test_that("translate sql server -> Netezza select random row using hash", {
+  sql <- translate("SELECT column FROM (SELECT column, ROW_NUMBER() OVER (ORDER BY HASHBYTES('MD5',CAST(person_id AS varchar))) tmp WHERE rn <= 1",
+      targetDialect = "netezza")
+  expect_equal_ignore_spaces(sql,
+    "SELECT column FROM (SELECT column, ROW_NUMBER() OVER (ORDER BY hash(CAST(person_id AS VARCHAR(1000)))) tmp WHERE rn <= 1")
+})
+
+test_that("translate sql server -> Oracle SELECT CONVERT(VARBINARY, CONCAT('0x', @a), 1)", {
+  sql <- translate("SELECT ROW_NUMBER() OVER CONVERT(VARBINARY, CONCAT('0x', val), 1) rn WHERE rn <= 1",
+      targetDialect = "oracle")
+  expect_equal_ignore_spaces(sql, "SELECT ROW_NUMBER() OVER TO_NUMBER(val, RPAD('X', LENGTH(val), 'X')) rn WHERE rn <= 1")
+})
+
+test_that("translate sql server -> Postgres SELECT CONVERT(VARBINARY, CONCAT('0x', @a), 1)", {
+  sql <- translate("SELECT ROW_NUMBER() OVER CONVERT(VARBINARY, CONCAT('0x', val), 1) rn WHERE rn <= 1",
+      targetDialect = "postgresql")
+  expect_equal_ignore_spaces(sql, "SELECT ROW_NUMBER() OVER CAST(CONCAT('x', val) AS BIT(32)) rn WHERE rn <= 1")
+})
+
+test_that("translate sql server -> RedShift SELECT CONVERT(VARBINARY, CONCAT('0x', @a), 1)", {
+  sql <- translate("SELECT ROW_NUMBER() OVER CONVERT(VARBINARY, CONCAT('0x', val), 1) rn WHERE rn <= 1",
+      targetDialect = "redshift")
+  expect_equal_ignore_spaces(sql, "SELECT ROW_NUMBER() OVER STRTOL(LEFT(val, 15), 16) rn WHERE rn <= 1")
+})
+
+test_that("translate sql server -> Impala SELECT CONVERT(VARBINARY, CONCAT('0x', @a), 1)", {
+  sql <- translate("SELECT ROW_NUMBER() OVER CONVERT(VARBINARY, CONCAT('0x', val), 1) rn WHERE rn <= 1",
+      targetDialect = "impala")
+  expect_equal_ignore_spaces(sql, "SELECT ROW_NUMBER() OVER cast(conv(val, 16, 10) as int) rn WHERE rn <= 1")
+})
+
+test_that("translate sql server -> Netezza SELECT CONVERT(VARBINARY, CONCAT('0x', @a), 1)", {
+  sql <- translate("SELECT ROW_NUMBER() OVER CONVERT(VARBINARY, CONCAT('0x', val), 1) rn WHERE rn <= 1",
+      targetDialect = "netezza")
+  expect_equal_ignore_spaces(sql, "SELECT ROW_NUMBER() OVER hex_to_binary(val) rn WHERE rn <= 1")
+})
+
+test_that("translate sql server -> BigQuery SELECT CONVERT(VARBINARY, CONCAT('0x', @a), 1)", {
+  sql <- translate("SELECT ROW_NUMBER() OVER CONVERT(VARBINARY, CONCAT('0x', val), 1) rn WHERE rn <= 1",
+      targetDialect = "bigquery")
+  expect_equal_ignore_spaces(sql, "select row_number() over safe_cast(concat('0x', val) as int64) rn where rn <= 1")
+})
+
 test_that("translate sql server -> PDW cte with preceding 'with' in quotes", {
   sql <- translate("insert into x (a) values ('with'); with cte (a) as(select a from b) select a INTO #c from cte;",
                       targetDialect = "pdw")
@@ -579,6 +636,11 @@ test_that("translate sql server -> Impala data types", {
   expect_equal_ignore_spaces(sql, "CREATE TABLE a (c1 DOUBLE)")
 })
 
+test_that("translate sql server -> Impala escape chars", {
+  sql <- translate("INSERT INTO t VALUES('some \"string\" ''with escape'' chars')", targetDialect = "impala")
+  expect_equal_ignore_spaces(sql, "INSERT INTO t VALUES(CONCAT('some \\042string\\042 ','\\047','with escape','\\047','chars'))")
+})
+
 # Netezza tests
 
 test_that("translate sql server -> Netezza WITH cte AS () INSERT INTO tbl SELECT * FROM cte", {
@@ -646,6 +708,15 @@ test_that("translate sql server -> Netezza WITH SELECT INTO with KEY distributio
                              "--HINT DISTRIBUTE_ON_KEY(a)\nCREATE TABLE b \nAS\nSELECT\na \nFROM\nsomeTable\nDISTRIBUTE ON (a);")
 })
 
+test_that("translate sql server -> Netezza SELECT INTO TEMP TABLE", {
+  sql <- translate("SELECT a INTO #b;", targetDialect = "netezza")
+  expect_equal_ignore_spaces(sql, "CREATE TEMP TABLE b\n AS \n SELECT \n a;")
+})
+
+test_that("translate sql server -> Netezza SELECT INTO TABLE", {
+  sql <- translate("SELECT a INTO b;", targetDialect = "netezza")
+  expect_equal_ignore_spaces(sql, "CREATE TABLE b \n AS \n SELECT a;")
+})
 
 test_that("translate sql server -> Netezza DROP TABLE IF EXISTS", {
   sql <- translate("IF OBJECT_ID('cohort', 'U') IS NOT NULL DROP TABLE cohort;",
@@ -893,11 +964,11 @@ test_that("translate sql server -> oracle ISNUMERIC", {
 test_that("translate sql server -> postgres ISNUMERIC", {
   sql <- translate("SELECT CASE WHEN ISNUMERIC(a) = 1 THEN a ELSE b FROM c;",
                       targetDialect = "postgresql")
-  expect_equal_ignore_spaces(sql, "SELECT CASE WHEN CASE WHEN (a ~ '^([0-9]+\\.?[0-9]*|\\.[0-9]+)$') THEN 1 ELSE 0 END = 1 THEN a ELSE b FROM c;")
+  expect_equal_ignore_spaces(sql, "SELECT CASE WHEN CASE WHEN (CAST(a AS VARCHAR) ~ '^([0-9]+\\.?[0-9]*|\\.[0-9]+)$') THEN 1 ELSE 0 END = 1 THEN a ELSE b FROM c;")
   sql <- translate("SELECT a FROM table WHERE ISNUMERIC(a) = 1", targetDialect = "postgresql")
-  expect_equal_ignore_spaces(sql, "SELECT a FROM table WHERE CASE WHEN (a ~ '^([0-9]+\\.?[0-9]*|\\.[0-9]+)$') THEN 1 ELSE 0 END = 1")
+  expect_equal_ignore_spaces(sql, "SELECT a FROM table WHERE CASE WHEN (CAST(a AS VARCHAR) ~ '^([0-9]+\\.?[0-9]*|\\.[0-9]+)$') THEN 1 ELSE 0 END = 1")
   sql <- translate("SELECT a FROM table WHERE ISNUMERIC(a) = 0", targetDialect = "postgresql")
-  expect_equal_ignore_spaces(sql, "SELECT a FROM table WHERE CASE WHEN (a ~ '^([0-9]+\\.?[0-9]*|\\.[0-9]+)$') THEN 1 ELSE 0 END = 0")
+  expect_equal_ignore_spaces(sql, "SELECT a FROM table WHERE CASE WHEN (CAST(a AS VARCHAR) ~ '^([0-9]+\\.?[0-9]*|\\.[0-9]+)$') THEN 1 ELSE 0 END = 0")
 })
 
 test_that("translate sql server -> bigquery lowercase all but strings and variables", {
@@ -916,6 +987,12 @@ test_that("translate sql server -> bigquery multiple common table expression col
   sql <- translate("with cte1 as (select 2), cte(x, y, z) as (select c1, c2 as y, c3 as r from t) select x, y, z from cte;",
                       targetDialect = "bigquery")
   expect_equal_ignore_spaces(sql, "with cte1 as (select 2), cte as (select c1 as x, c2 as y, c3 as z from t) select x, y, z from cte;")
+})
+
+test_that("translate sql server -> bigquery distinct keyword", {
+    sql <- translate("with cte2 (column1, column2) as (select distinct c1.column1, c1.column2 from cte c1) select column1, column2 into cte2 from cte2",
+    targetDialect = "bigquery")
+    expect_equal_ignore_spaces(sql, "with cte2  as (select distinct c1.column1 as column1,c1.column2  as column2 from cte c1) select column1, column2 into cte2 from cte2")
 })
 
 test_that("translate sql server -> bigquery group by function", {
@@ -1184,6 +1261,11 @@ test_that("translate sql server -> bigquery EOMONTH()", {
   sql <- translate("select eomonth(payer_plan_period_start_date)",
                       targetDialect = "bigquery")
   expect_equal_ignore_spaces(sql, "select DATE_SUB(DATE_TRUNC(DATE_ADD(payer_plan_period_start_date, INTERVAL 1 MONTH), MONTH), INTERVAL 1 DAY)")
+})
+
+test_that("translate sql server -> bigquery escape chars", {
+  sql <- translate("INSERT INTO t VALUES('some \"string\" ''with escape'' chars')", targetDialect = "bigquery")
+  expect_equal_ignore_spaces(sql, "insert into t values(CONCAT('some \\042string\\042 ','\\047','with escape','\\047','chars'))")
 })
 
 test_that("translate sql server -> RedShift DATEADD dd", {
@@ -1944,14 +2026,6 @@ test_that("translate sql server -> RedShift DISTINCT + TOP", {
                              "SELECT TOP 100 DISTINCT * FROM table WHERE a = b;")
 })
 
-test_that("RedShift String literal within CTE should be explicitly casted to character type", {
-  sql <- translate(
-    "WITH expression AS(SELECT 'my literal' literal, col1, CAST('other literal' as VARCHAR(MAX)), col2 FROM table WHERE a = b) SELECT * FROM expression ORDER BY 1, 2, 3, 4;",
-    targetDialect = "redshift")
-  expect_equal_ignore_spaces(sql, 
-                             "WITH  expression  AS (SELECT CAST('my literal' as TEXT) literal, col1, CAST('other literal' as VARCHAR(MAX)), col2 FROM table WHERE a = b) SELECT * FROM expression ORDER BY 1, 2, 3, 4;")
-})
-
 test_that("Postgres String literal within CTE should be explicitly casted to character type", {
   sql <- translate(
     "WITH expression AS(SELECT 'my literal', col1, CAST('other literal' as VARCHAR(MAX)), col2 FROM table WHERE a = b) SELECT * FROM expression ORDER BY 1, 2, 3, 4;",
@@ -2183,12 +2257,6 @@ test_that("translate sql server -> Redshift window function NTILE no sort specif
   expect_equal_ignore_spaces(sql, "select NTILE(4) OVER (procedure_concept_id ORDER BY prc_cnt) as num")
 })
 
-test_that("translate sql server -> Redshift WITH cte AS () INSERT INTO tbl SELECT * FROM cte", {
-  sql <- translate("WITH data AS (SELECT 'test' AS user, 'secret' AS password) INSERT INTO users SELECT * FROM data;",
-                      targetDialect = "redshift")
-  expect_equal_ignore_spaces(sql, "INSERT INTO users WITH data AS (SELECT  CAST('test' as TEXT) AS user, 'secret' AS password) SELECT * FROM data;")
-})
-
 test_that("translate sql server -> Oracle union of two queries without FROM", {
   sql <- translate("SELECT 1,2 UNION SELECT 3,4;", 
                       targetDialect = "oracle")
@@ -2345,4 +2413,10 @@ test_that("translate create table if not exists pdw", {
   sql <- translate( "IF OBJECT_ID('test.testing', 'U') IS NULL create table test.testing (id int);", 
                     targetDialect = "pdw")
   expect_equal_ignore_spaces(sql, "IF XACT_STATE() = 1 COMMIT; IF OBJECT_ID('test.testing', 'U') IS NULL  CREATE TABLE  test.testing  (id int)\nWITH (DISTRIBUTION = REPLICATE);")
+})
+
+test_that("translate SELECT INTO + CTE bigquery", {
+  sql <- translate( "WITH data (a,b) AS (SELECT 1, 2 UNION ALL SELECT 3, 4) SELECT a,b INTO test FROM data;",
+                    targetDialect = "bigquery")
+  expect_equal_ignore_spaces(sql, "CREATE TABLE test AS WITH data as (select 1 as a, 2 as b union all select 3, 4) SELECT a,b FROM data;")
 })

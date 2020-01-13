@@ -149,6 +149,11 @@ test_that("Backslash in parameter is handled correctly", {
   expect_equal(sql, "SELECT * FROM table WHERE name = 'NA\\joe';")
 })
 
+test_that("Dollar in parameter is handled correctly", {
+    sql <- render("SELECT * FROM table WHERE name = '@name';", name = "NA$joe")
+    expect_equal(sql, "SELECT * FROM table WHERE name = 'NA$joe';")
+})
+
 
 test_that("If-then-else: error on bad boolean logic syntax", {
   # Note there's only one equals sign:

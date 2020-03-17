@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2019 Observational Health Data Sciences and Informatics
+ * Copyright 2020 Observational Health Data Sciences and Informatics
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,9 @@ public class StringUtils {
 
 	// single quoted string with escaped single quotes
 	public static final String REGEX_ESCAPED_APOSTROPHES = "(['\"])((?!\\1).|\\1{2})*\\1";
+
+
+	public static final String HINT_KEY_WORD = "hint";
 
 	public static String replaceCharAt(String string, int pos, char ch) {
 		return string.substring(0, pos) + ch + string.substring(pos + 1);
@@ -107,7 +110,7 @@ public class StringUtils {
 					tokens.add(token);
 				}
 				if (ch == '-' && cursor < sql.length() && sql.charAt(cursor + 1) == '-'
-						&& (sql.length() - cursor < 6 || !sql.substring(cursor + 2, cursor + 6).equals("hint"))) {
+						&& (sql.length() - cursor < 6 || !sql.substring(cursor + 2, cursor + 6).equals(HINT_KEY_WORD))) {
 					commentType1 = true;
 				} else if (ch == '/' && cursor < sql.length() && sql.charAt(cursor + 1) == '*') {
 					commentType2 = true;

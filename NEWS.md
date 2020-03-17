@@ -1,3 +1,12 @@
+SqlRender 1.6.4
+===============
+
+Changes:
+
+1. Adding support for Apache Hive LLAP.
+
+2. Adding functions to convert camelCase to Title Case. (camelCaseToTitleCase)
+
 SqlRender 1.6.3
 ===============
 
@@ -28,7 +37,7 @@ SqlRender 1.6.2
 
 Changes:
 
-1. Added rules for Oracle for conditonal indices.
+1. Added rules for Oracle for conditional indices.
 
 Bugfixes:
 
@@ -167,7 +176,7 @@ Changes:
 1. Added ability to use regular expression in translation patterns. This allowed SELECT TOP n to be translated.
 2. Deprecated sourceDialect argument.
 3. Added translation for CONCAT function with >2 arguments to Oracle (which only allows 2 arguments)
-4. Added hints for translation optimation to massive parallel platforms like RedShift
+4. Added hints for translation optimization to massive parallel platforms like RedShift
 5. Throw warnings when translateSql is called with variable names that are not in the SQL
 6. Throw warnings when table names are too long for Oracle
 

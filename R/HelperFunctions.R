@@ -1,6 +1,6 @@
 # @file HelperFunctions.R
 #
-# Copyright 2019 Observational Health Data Sciences and Informatics
+# Copyright 2020 Observational Health Data Sciences and Informatics
 #
 # This file is part of SqlRender
 # 
@@ -234,6 +234,25 @@ camelCaseToSnakeCase <- function(string) {
   return(string)
 }
 
+#' Convert a camel case string to title case
+#'
+#' @param string   The string to be converted
+#'
+#' @return
+#' A string
+#'
+#' @examples
+#' camelCaseToTitleCase("exposureConceptId1")
+#' # > 'Exposure Concept Id 1'
+#'
+#' @export
+camelCaseToTitleCase <- function(string) {
+  string <- gsub("([A-Z])", " \\1", string)
+  string <- gsub("([a-z])([0-9])", "\\1 \\2", string)
+  substr(string, 1, 1) <- toupper(substr(string, 1, 1))
+  return(string)
+}
+
 #' Create an R wrapper for SQL
 #'
 #' @description
@@ -249,7 +268,7 @@ camelCaseToSnakeCase <- function(string) {
 #'
 #' @param sqlFilename             The SQL file.
 #' @param rFilename               The name of the R file to be generated. Defaults to the name of the
-#'                                SQL file with the extention reset to R.
+#'                                SQL file with the extension reset to R.
 #' @param packageName             The name of the package that will contains the SQL file.
 #' @param createRoxygenTemplate   If true, a template of Roxygen comments will be added.
 #'

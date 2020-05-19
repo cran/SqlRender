@@ -1,3 +1,13 @@
+SqlRender 1.6.6
+===============
+
+Changes:
+
+1. Adding rules for modulus operator for BigQuery.
+
+2. Deleting UPDATE STATISTICS statement for BigQuery.
+
+
 SqlRender 1.6.5
 ===============
 

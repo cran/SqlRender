@@ -1,3 +1,25 @@
+SqlRender 1.6.8
+===============
+
+Bugfixes:
+
+1. Fixing error when SQL is not a native character vector (e.g. when it has been created using glue).
+
+
+SqlRender 1.6.7
+===============
+
+Changes:
+
+1. Throw a more informative error message when `loadRenderTranslateSql()` cannot find the SQL file in the specified package.
+
+Bugfixes:
+
+1. On SQLite, DATEADD and CONVERT functions now cast to REAL (used to represent DATE / DATETIME). 
+
+2. On SQLite, DATEADD function now works when amount to add is not a verbatim number.
+
+
 SqlRender 1.6.6
 ===============
 

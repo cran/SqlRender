@@ -1,12 +1,12 @@
 SqlRender
 =========
 
-[![Build Status](https://travis-ci.org/OHDSI/SqlRender.svg?branch=master)](https://travis-ci.org/OHDSI/SqlRender)
+[![Build Status](https://github.com/OHDSI/SqlRender/workflows/R-CMD-check/badge.svg)](https://github.com/OHDSI/SqlRender/actions?query=workflow%3AR-CMD-check)
 [![codecov.io](https://codecov.io/github/OHDSI/SqlRender/coverage.svg?branch=master)](https://codecov.io/github/OHDSI/SqlRender?branch=master)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/SqlRender)](https://cran.r-project.org/package=SqlRender)
 [![CRAN_Status_Badge](http://cranlogs.r-pkg.org/badges/SqlRender)](https://cran.r-project.org/package=SqlRender)
 
-SqlRender is part of [HADES](https://ohdsi.github.io/Hades).
+SqlRender is part of [HADES](https://ohdsi.github.io/Hades/).
 
 Introduction
 ============
@@ -69,8 +69,8 @@ install.packages("SqlRender")
 To install the latest development version, install from GitHub:
 
 ```r
-install.packages("devtools")
-devtools::install_github("ohdsi/SqlRender")
+install.packages("remotes")
+remotes::install_github("ohdsi/SqlRender", ref = "develop")
 ```
 
 Once installed, you can try out SqlRender in a Shiny app that comes with the package:
@@ -109,7 +109,7 @@ You can fetch the JAR file in the inst/java folder of this repository, or use Ma
 <dependency>
 	<groupId>org.ohdsi.sql</groupId>
 	<artifactId>SqlRender</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.7.0-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -121,7 +121,7 @@ java -jar SqlRender.jar ?
 
 User Documentation
 ==================
-Documentation can be found on the [package website](https://ohdsi.github.io/SqlRender).
+Documentation can be found on the [package website](https://ohdsi.github.io/SqlRender/).
 
 PDF versions of the documentation are also available:
 * Vignette: [Using SqlRender](https://ohdsi.github.io/SqlRender/articles/UsingSqlRender.html)

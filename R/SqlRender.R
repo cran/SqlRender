@@ -1,4 +1,4 @@
-# Copyright 2020 Observational Health Data Sciences and Informatics
+# Copyright 2021 Observational Health Data Sciences and Informatics
 #
 # This file is part of ParallelLogger
 #
@@ -18,6 +18,7 @@
 "_PACKAGE"
 
 #' @importFrom utils install.packages menu
+#' @importFrom rlang abort warn inform
 NULL
 
 .onLoad <- function(libname, pkgname) {

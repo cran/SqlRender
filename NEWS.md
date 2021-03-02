@@ -1,3 +1,23 @@
+SqlRender 1.7.0
+===============
+
+Changes:
+
+1. Deprecating `oracleTempSchema` argument in various functions in favor of `tempEmulationSchema` schema, which can also be set globally using the `sqlRenderTempEmulationSchema` option.
+
+2. Adding translation of DATEDIFF(YEAR, ...) and DATEDIFF(MONTH, ...) to all dialects.
+
+3. Updated `createRWrapperForSql()` to latest SqlRender standards.
+
+Bugfixes:
+
+1. Fixed translation of CTE without FROM or UNION in BigQuery. 
+
+2. Fixed translation of CONVERT(DATE...) in SQLite.
+
+3. Fixed translation of DATEDIFF with literals in SQLite.
+
+
 SqlRender 1.6.8
 ===============
 

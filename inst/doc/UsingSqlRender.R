@@ -1,55 +1,50 @@
 ## ---- echo = FALSE, message = FALSE-------------------------------------------
 library(SqlRender)
-knitr::opts_chunk$set(
-  cache = FALSE,
-  comment = "#>",
-  error = FALSE,
-  tidy = FALSE)
 
-## ----tidy=TRUE,echo=TRUE------------------------------------------------------
+## ----echo=TRUE----------------------------------------------------------------
 sql <- "SELECT * FROM table WHERE id = @a;"
-render(sql, a=123)
+render(sql, a = 123)
 
-## ----tidy=TRUE,echo=TRUE------------------------------------------------------
+## ----echo=TRUE----------------------------------------------------------------
 sql <- "SELECT * FROM @x WHERE id = @a;"
-render(sql, x="my_table", a=123)
+render(sql, x = "my_table", a = 123)
 
-## ----tidy=TRUE,echo=TRUE------------------------------------------------------
+## ----echo=TRUE----------------------------------------------------------------
 sql <- "SELECT * FROM table WHERE id IN (@a);"
-render(sql,a = c(1,2,3))
+render(sql, a = c(1,2,3))
 
-## ----tidy=TRUE,echo=TRUE------------------------------------------------------
+## ----echo=TRUE----------------------------------------------------------------
 sql <- "{DEFAULT @a = 1} SELECT * FROM table WHERE id = @a;"
 render(sql)
-render(sql,a=2)
+render(sql, a = 2)
 
-## ----tidy=TRUE,echo=TRUE------------------------------------------------------
+## ----echo=TRUE----------------------------------------------------------------
 sql <- "{DEFAULT @a = 1} {DEFAULT @x = 'my_table'} SELECT * FROM @x WHERE id = @a;"
 render(sql)
 
-## ----tidy=TRUE,echo=TRUE------------------------------------------------------
+## ----echo=TRUE----------------------------------------------------------------
 sql <- "SELECT * FROM table {@x} ? {WHERE id = 1}"
-render(sql,x = FALSE)
-render(sql,x = TRUE)
+render(sql, x = FALSE)
+render(sql, x = TRUE)
 
-## ----tidy=TRUE,echo=TRUE------------------------------------------------------
+## ----echo=TRUE----------------------------------------------------------------
 sql <- "SELECT * FROM table {@x == 1} ? {WHERE id = 1};"
-render(sql,x = 1)
-render(sql,x = 2)
+render(sql, x = 1)
+render(sql, x = 2)
 
-## ----tidy=TRUE,echo=TRUE------------------------------------------------------
+## ----echo=TRUE----------------------------------------------------------------
 sql <- "SELECT * FROM table {@x IN (1,2,3)} ? {WHERE id = 1};"
-render(sql,x = 2)
+render(sql, x = 2)
 
-## ----tidy=TRUE,echo=TRUE------------------------------------------------------
+## ----echo=TRUE----------------------------------------------------------------
 sql <- "SELECT * FROM table {@x IN (1,2,3) | @y != 3} ? {WHERE id = @x AND value = @y};"
-render(sql,x = 4, y = 4)
+render(sql, x = 4, y = 4)
 
 sql <- "SELECT * FROM table {(@x == 1 | @x == 3) & @y != 3} ? {WHERE id = @x AND val = @y};"
-render(sql,x = 3, y = 4)
+render(sql, x = 3, y = 4)
 
 
-## ----tidy=TRUE,echo=TRUE------------------------------------------------------
+## ----echo=TRUE----------------------------------------------------------------
 sql <- "SELECT DATEDIFF(dd,a,b) FROM table; "
 translate(sql,targetDialect = "oracle")
 
@@ -59,11 +54,14 @@ funs <- c("ABS", "ACOS", "ASIN", "ATAN", "AVG", "CAST", "CEILING", "CHARINDEX", 
 
 knitr::kable(matrix(funs, ncol = 4), col.names = rep("Function",4), caption = "Functions supported by translate")
 
-## ----tidy=TRUE,echo=TRUE------------------------------------------------------
+## ----echo=TRUE----------------------------------------------------------------
 sql <- "SELECT * FROM #children;"
-translate(sql, targetDialect = "oracle", oracleTempSchema = "temp_schema")
+translate(sql, targetDialect = "oracle", tempEmulationSchema = "temp_schema")
 
-## ----tidy=TRUE,echo=TRUE------------------------------------------------------
+## ----echo=TRUE, eval=FALSE----------------------------------------------------
+#  options(sqlRenderTempEmulationSchema = "temp_schema")
+
+## ----echo=TRUE----------------------------------------------------------------
 foo <- function(databaseSchema, dbms) {
   database <- strsplit(databaseSchema ,"\\.")[[1]][1]
   sql <- "SELECT * FROM @databaseSchema.person; USE @database; SELECT * FROM person;"
@@ -74,10 +72,10 @@ foo <- function(databaseSchema, dbms) {
 foo("cdm_data.dbo", "sql server")
 foo("cdm_data", "postgresql")
 
-## ----tidy=TRUE,eval=FALSE-----------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  launchSqlRenderDeveloper()
 
-## ----tidy=TRUE,eval=FALSE-----------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  translateFile("parameterizedSql.txt","renderedSql.txt")
 
 ## ----eval=FALSE---------------------------------------------------------------
@@ -85,7 +83,7 @@ foo("cdm_data", "postgresql")
 #                       rFilename = "test.R",
 #                       packageName = "myPackage")
 
-## ----tidy=TRUE,eval=FALSE-----------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  #' Todo: add title
 #  #'
 #  #' @description

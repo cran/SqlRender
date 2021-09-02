@@ -17,7 +17,7 @@ Features
 - Supports a simple markup syntax for making SQL parameterized, and renders parameterized SQL (containing the markup syntax) to executable SQL
 - The syntax supports defining default parameter values
 - The syntax supports if-then-else structures
-- Has functions for translating SQL from one dialect (Microsoft SQL Server) to other dialects (Oracle, PostgreSQL, Amazon RedShift, Impala, IBM Netezza, Google BigQuery, Microsoft PDW, and SQLite)
+- Has functions for translating SQL from one dialect (Microsoft SQL Server) to other dialects (Oracle, PostgreSQL, Amazon RedShift, Impala, IBM Netezza, Google BigQuery, Microsoft PDW, Apache Spark, and SQLite)
 - Can be used as R package, Java library, or as stand-alone executable through a command-line interface
 
 Examples
@@ -45,6 +45,10 @@ will produce the variable `sql` containing this value:
 ```
 "SELECT * FROM my_table; ALTER SESSION SET current_schema =  my_schema;"
 ```
+
+## SqlDeveloper
+
+The SqlDeveloper Shiny app is included in the SqlRender R package, and allows viewing the rendering and translation on the fly as you develop your SQL. The SqlDeveloper app is also available online [here](https://data.ohdsi.org/SqlDeveloper/).
 
 Technology
 ==========

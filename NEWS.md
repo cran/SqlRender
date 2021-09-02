@@ -1,3 +1,22 @@
+SqlRender 1.8.0
+===============
+
+Changes:
+
+1. Added Apache Spark dialect ("spark").
+
+2. Adding automated check whether correct Java Jar file is loaded, throws warning if not.
+
+3. Adding translation of `CEILING()` for SQLite.
+
+
+Bugfixes:
+
+1. Fixing setting of global `tempEmulationSchema` option.
+
+2. Workaround for `SUBSTR()` function bug in newer versions of SQLite (by explicitly casting string to type `STRING`).
+
+
 SqlRender 1.7.0
 ===============
 
@@ -8,6 +27,7 @@ Changes:
 2. Adding translation of DATEDIFF(YEAR, ...) and DATEDIFF(MONTH, ...) to all dialects.
 
 3. Updated `createRWrapperForSql()` to latest SqlRender standards.
+
 
 Bugfixes:
 

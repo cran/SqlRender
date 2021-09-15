@@ -1,8 +1,8 @@
 Package: SqlRender
 Type: Package
 Title: Rendering Parameterized SQL and Translation to Dialects
-Version: 1.8.0
-Date: 2021-08-30
+Version: 1.8.1
+Date: 2021-09-15
 Authors@R: c(
   person("Martijn", "Schuemie", , "schuemie@ohdsi.org", role = c("aut", "cre")),
   person("Marc", "Suchard", role = c("aut"))
@@ -23,8 +23,8 @@ LazyData: false
 RoxygenNote: 7.1.1
 Encoding: UTF-8
 NeedsCompilation: no
-Packaged: 2021-09-01 12:04:44 UTC; MSCHUEMI
+Packaged: 2021-09-15 06:43:22 UTC; MSCHUEMI
 Author: Martijn Schuemie [aut, cre],
   Marc Suchard [aut]
 Repository: CRAN
-Date/Publication: 2021-09-02 14:51:00 UTC
+Date/Publication: 2021-09-15 07:00:02 UTC

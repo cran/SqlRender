@@ -1,12 +1,23 @@
 package org.ohdsi.sql;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class TestSqlRender {
 
 	public static void main(String[] args) {
 		
-		String sql = "WITH data(x) AS (SELECT (CAST(1 AS INT) x)) SELECT x INTO my_table FROM data;";
+		String regex = "([a-z]+\\(.*\\))|([a-z0-9_]+)";
+		Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE);
+		String string = "SELECT CAST(middle_initial AS VARCHAR)";
+		Matcher matcher = pattern.matcher(string);
+		while (matcher.find())
+			if (matcher.end() == string.length())
+				System.out.println("check");
+	
+		String sql = "SELECT CAST(middle_initial AS VARCHAR) + 'abc' FROM my_table;";
 		String path = "inst/csv/replacementPatterns.csv";
-		sql = SqlTranslate.translateSqlWithPath(sql, "spark", null, null, path);
+		sql = SqlTranslate.translateSqlWithPath(sql, "test", null, null, path);
 		System.out.println(sql);
 		
 //		Pattern pattern = Pattern.compile("^((?!FROM).)*$");

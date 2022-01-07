@@ -1,4 +1,4 @@
-# Copyright 2021 Observational Health Data Sciences and Informatics
+# Copyright 2022 Observational Health Data Sciences and Informatics
 #
 # This file is part of SqlRender
 #
@@ -17,7 +17,7 @@
 #' @keywords internal
 "_PACKAGE"
 
-#' @importFrom utils install.packages menu
+#' @importFrom utils install.packages menu read.csv
 #' @importFrom rlang abort warn inform
 NULL
 

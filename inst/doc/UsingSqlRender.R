@@ -76,7 +76,7 @@ foo("cdm_data", "postgresql")
 #  launchSqlRenderDeveloper()
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  translateFile("parameterizedSql.txt","renderedSql.txt")
+#  renderSqlFile("parameterizedSql.txt","renderedSql.txt")
 
 ## ----eval=FALSE---------------------------------------------------------------
 #  createRWrapperForSql(sqlFilename = "test.sql",

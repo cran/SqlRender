@@ -1,5 +1,29 @@
+SqlRender 1.8.3
+===============
+
+Changes:
+
+1. Added rules for translating implicit string concatenation to BigQuery.
+
+2. Added `getTempTablePrefix()` function.
+
+
+SqlRender 1.8.2
+===============
+
+Changes:
+
+1. Adding `listSupportedDialects()` function.
+
+Bugfixes:
+
+1. Fix `DATEFROMPARTS` and `DATETIMEFROMPARTS` translation for newer SQLite versions by first converting to `INT` before converting to `TEXT`.
+
+
 SqlRender 1.8.1
 ===============
+
+Changes:
 
 1. Provide informative error message when Java is outdated.
 

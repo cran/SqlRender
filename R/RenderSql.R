@@ -1,6 +1,6 @@
 # @file RenderSql
 #
-# Copyright 2021 Observational Health Data Sciences and Informatics
+# Copyright 2022 Observational Health Data Sciences and Informatics
 #
 # This file is part of SqlRender
 # 
@@ -122,7 +122,8 @@ renderSql <- function(sql = "", warnOnMissingParameters = TRUE, ...) {
 #'
 #' @param sql                   The SQL to be translated
 #' @param targetDialect         The target dialect. Currently "oracle", "postgresql", "pdw", "impala",
-#'                              "sqlite", "sqlite extended", "netezza", "bigquery", "spark", and "redshift" are supported.
+#'                              "sqlite", "sqlite extended", "netezza", "bigquery", "spark", and "redshift" are supported. 
+#'                              Use \code{\link{listSupportedDialects}} to get the list of supported dialects.
 #' @param oracleTempSchema      DEPRECATED: use \code{tempEmulationSchema} instead.
 #' @param tempEmulationSchema   Some database platforms like Oracle and Impala do not truly support
 #'                              temp tables. To emulate temp tables, provide a schema with write
@@ -264,3 +265,22 @@ splitSql <- function(sql) {
   }
   rJava::J("org.ohdsi.sql.SqlSplit")$splitSql(as.character(sql))
 }
+
+#' Get the prefix used for emulated temp tables for DBMSs that do not support temp tables (e.g. Oracle, 
+#' BigQuery). 
+#' 
+#' @examples
+#' getTempTablePrefix()
+#'
+#' @return
+#' The prefix string.
+#' 
+#' @export
+getTempTablePrefix <- function() {
+  if (!supportsJava8()) {
+    warning("Java 8 or higher is required, but older version was found. ")
+    return("")
+  }
+  return(rJava::J("org.ohdsi.sql.SqlTranslate")$getGlobalSessionId())
+}
+

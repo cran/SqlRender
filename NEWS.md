@@ -1,3 +1,17 @@
+SqlRender 1.9.0
+===============
+
+Changes:
+
+1. Added additional logic for `INSERT` statements on Spark, including the new `sparkHandleInsert()` function.
+
+2. Supporting `DROP TABLE IF EXISTS` translation across all dialects.
+
+3. Adding translation rule for `CAST(... AS DATE)` for SQLite.
+
+4. Added `snakeCaseToCamelCaseNames()` and `camelCaseToSnakeCaseNames()` functions.
+
+
 SqlRender 1.8.3
 ===============
 

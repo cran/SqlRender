@@ -105,7 +105,7 @@ A first limitation is that **the starting dialect has to be SQL Server**. The re
 
 A second limitation is that currently only these dialects are supported as targets: **Oracle**, **PostgreSQL**, **Microsoft PDW (Parallel Data Warehouse)**, **Impala**, **Netezza**, **Google BigQuery**, **Amazon Redhift**, **Apache Spark** and **SQLite**.
 
-A third limitation is that only a limited set of translation rules have currently been implemented, although adding them to the [list](https://github.com/OHDSI/SqlRender/blob/master/inst/csv/replacementPatterns.csv) should not be hard.
+A third limitation is that only a limited set of translation rules have currently been implemented, although adding them to the [list](https://github.com/OHDSI/SqlRender/blob/main/inst/csv/replacementPatterns.csv) should not be hard.
 
 A last limitation is that not all functions supported in one dialect have an equivalent in other dialects.
 
@@ -163,13 +163,9 @@ INSERT INTO other_table (field_1) VALUES (1);               -- Inserting verbati
 
 INSERT INTO other_table (field_1) SELECT value FROM table;  -- Inserting from SELECT
   
-DROP TABLE table;                                           -- Simple drop commands
+DROP TABLE my_table;                                        -- Simple drop commands
 
-IF OBJECT_ID('ACHILLES_analysis', 'U') IS NOT NULL          -- Drop table if it exists
-  DROP TABLE ACHILLES_analysis;
-  
-IF OBJECT_ID('tempdb..#cohorts', 'U') IS NOT NULL           -- Drop temp table if it exists
-  DROP TABLE #cohorts;  
+DROP TABLE IF EXISTS ACHILLES_analysis;                     -- Drop table if it exists
 
 WITH cte AS (SELECT * FROM table) SELECT * FROM cte;        -- Common table expressions
 
@@ -183,6 +179,8 @@ SELECT * FROM a UNION SELECT * FROM b                       -- UNIONs
 SELECT * FROM a INTERSECT SELECT * FROM b                   -- INTERSECTIONs
 
 SELECT * FROM a EXCEPT SELECT * FROM b                      -- EXCEPT
+
+CAST('20220101' AS DATE)                                    -- Cast to date
 
 ```
 
@@ -428,4 +426,30 @@ This code expects the file *test.sql* to be located in the *inst/sql/sql_server/
 
 Note that the parameters are identified by the declaration of default values, and that snake_case names (our standard for SQL) are converted to camelCase names (our standard for R).
 
+# Spark SQL
 
+Spark SQL v3.1 improves the ANSI SQL compliance of Spark, however, at this time, INSERT statements are a bit limited, compared to other dialects:
+
+- INSERT commands must feature a full column list in both the parenthetical column list and in the actual data to be inserted. A full column list here means that every column in the destination table must be present. 
+
+- The column list does not need to be in the correct order as the destination table, provided the parenthetical column list explicitly states the column names you're targeting.
+
+To mitigate this issue, SqlRender has a Java function with R wrapper named `sparkHandleInsert()`, which will connect to the database and interrogate it for the full column list of a destination table used in an INSERT command, to then reconstitute the command to have the full column list.
+
+**For example:**
+
+Suppose we were inserting a record to the COHORT table with this call:
+
+`sql <- "insert into results_schema.cohort (subject_id, cohort_definition_id) values (1, 2)'`
+
+In Spark SQL, this would fail, as the COHORT table consists of cohort_definition_id, subject_id, cohort_start_date, and cohort_end_date.
+
+Instead, we can run this:
+
+```
+sql <- "insert into results_schema.cohort (subject_id, cohort_definition_id) values (1, 2)'
+connection <- DatabaseConnector::connect(connectionDetails = connectionDetails)
+SqlRender::sparkHandleInsert(sql, connection)
+```
+
+and obtain: `INSERT INTO results_schema.cohort VALUES (2, 1, NULL, NULL);`, which places the columns in correct table order and pads it out with NULL values.

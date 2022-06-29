@@ -1,4 +1,5 @@
 To,Pattern,Replacement
+oracle,"CAST(@a AS DATE)","TO_DATE(@a, 'YYYYMMDD')"
 oracle,"INSERT INTO @table (@columns) VALUES (@values1),(@values2)",<start_of_insert> INSERT INTO @table (@columns) VALUES (INTO @table <par_open>@columns<par_close> VALUES <par_open>@values1<par_close>\n INTO @table <par_open>@columns<par_close> VALUES <par_open>@values2<par_close>\n)
 oracle,INTO @table <par_open>@columns<par_close> VALUES <par_open>INTO @table <par_open>@columns<par_close> VALUES,INTO @table <par_open>@columns<par_close> VALUES
 oracle,<start_of_insert> @a INSERT INTO @table (@columns) VALUES (@b),INSERT ALL\n@bSELECT * FROM dual
@@ -677,7 +678,11 @@ bigquery,VARCHAR,STRING
 bigquery,CHAR(@a),STRING
 bigquery,CHAR,STRING
 bigquery,STRING NULL,STRING
+bigquery,DATE NULL,DATE
+bigquery,DATETIME NULL,DATETIME
 bigquery,INT64 NULL,INT64
+bigquery,FLOAT64 NULL,FLOAT64
+bigquery,NUMERIC NULL,NUMERIC
 bigquery,"DOUBLE PRECISION","FLOAT64"
 bigquery,"GETDATE()","CURRENT_DATE()"
 bigquery,"CONSTRAINT @a DEFAULT CURRENT_DATE()",""

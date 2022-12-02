@@ -250,7 +250,7 @@ test_that("translate ## issue on oracle", {
 
 test_that("translate sql server -> Oracle TOP", {
   sql <- translate("SELECT TOP 10 * FROM my_table WHERE a = b;", targetDialect = "oracle")
-  expect_equal_ignore_spaces(sql, "SELECT * FROM my_table WHERE a = b AND ROWNUM <= 10; ")
+  expect_equal_ignore_spaces(sql, "SELECT  * FROM my_table   WHERE a = b  FETCH FIRST 10 ROWS ONLY;")
 })
 
 test_that("translate sql server -> Oracle TOP subquery", {
@@ -259,9 +259,15 @@ test_that("translate sql server -> Oracle TOP subquery", {
   )
   expect_equal_ignore_spaces(
     sql,
-    "SELECT name FROM (SELECT name FROM my_table WHERE a = b AND ROWNUM <= 1);"
+    "SELECT name FROM (SELECT  name FROM my_table   WHERE a = b  FETCH FIRST 1 ROWS ONLY) ;"
   )
 })
+
+test_that("translate sql server -> Oracle DISTINCT TOP", {
+  sql <- translate("SELECT DISTINCT TOP 10 a FROM my_table WHERE a = b;", targetDialect = "oracle")
+  expect_equal_ignore_spaces(sql, "SELECT DISTINCT a FROM my_table   WHERE a = b  FETCH FIRST 10 ROWS ONLY;")
+})
+
 
 test_that("translate sql server -> oracle concat", {
   sql <- translate("SELECT CONCAT(a,\" , \",c,d,e) FROM x;", targetDialect = "oracle")
@@ -457,4 +463,49 @@ test_that("translateSingleStatement sql server -> oracle throw error if > 1 stat
 test_that("translate sql server -> oracle DROP TABLE IF EXISTS", {
   sql <- translate("DROP TABLE IF EXISTS test;", targetDialect = "oracle")
   expect_equal_ignore_spaces(sql, "BEGIN\n EXECUTE IMMEDIATE 'TRUNCATE TABLE test';\n EXECUTE IMMEDIATE 'DROP TABLE test';\nEXCEPTION\n WHEN OTHERS THEN\n IF SQLCODE != -942 THEN\n RAISE;\n END IF;\nEND;")
+})
+
+test_that("translate sql server -> oracle SELECT *,", {
+  sql <- translate("SELECT *, 1 AS x FROM my_table;", targetDialect = "oracle")
+  expect_equal_ignore_spaces(sql, "SELECT my_table .*, 1 AS x  FROM my_table ;")
+})
+
+test_that("translate sql server -> oracle SELECT *,", {
+  sql <- translate("SELECT *, 1 AS x FROM (SELECT a FROM b) q01;", targetDialect = "oracle")
+  expect_equal_ignore_spaces(sql, "SELECT q01 .*, 1 AS x  FROM (SELECT a FROM b ) q01;")
+})
+
+test_that("translate sql server -> oracle SELECT TOP *,", {
+  sql <- translate("SELECT TOP 10 *, 1 AS x FROM my_table;", targetDialect = "oracle")
+  expect_equal_ignore_spaces(sql, "SELECT my_table  .*, 1 AS x  FROM my_table   FETCH FIRST 10 ROWS ONLY;")
+})
+
+test_that("translate sql server -> oracle SELECT *, FROM", {
+  sql <- translate("SELECT *, 1 AS x FROM my_table WHERE a = b;", targetDialect = "oracle")
+  expect_equal_ignore_spaces(sql, "SELECT my_table   .*, 1 AS x  FROM my_table    WHERE a = b ;")
+})
+
+test_that("translate sql server -> oracle SELECT *, FROM ORDER BY", {
+  sql <- translate("SELECT *, 1 AS x FROM my_table WHERE a = b ORDER BY a;", targetDialect = "oracle")
+  expect_equal_ignore_spaces(sql, "SELECT my_table   .*, 1 AS x  FROM my_table    WHERE a = b ORDER BY a ;")
+})
+
+test_that("translate sql server -> oracle nested SELECT *, FROM", {
+  sql <- translate("(SELECT *, 1 AS x FROM my_table)", targetDialect = "oracle")
+  expect_equal_ignore_spaces(sql, "(SELECT my_table .*, 1 AS x  FROM my_table )")
+})
+
+test_that("translate sql server -> oracle IIF", {
+  sql <- translate("SELECT IIF(a>b, 1, b) AS max_val FROM table;", targetDialect = "oracle")
+  expect_equal_ignore_spaces(sql, "SELECT CASE WHEN a>b THEN 1 ELSE b END AS max_val FROM table ;")
+})
+
+test_that("translate: warning when using oracleTempSchema", {
+  clearWarningBlock()
+  expect_warning(translate("SELECT * FROM #my_table", targetDialect = "oracle", oracleTempSchema = "scratch"))
+})
+
+test_that("translateSingleStatement: warning when using oracleTempSchema", {
+  clearWarningBlock()
+  expect_warning(translateSingleStatement("SELECT * FROM #my_table", targetDialect = "oracle", oracleTempSchema = "scratch"))
 })

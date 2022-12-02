@@ -1,3 +1,29 @@
+SqlRender 1.11.0
+================
+
+Changes:
+
+1. Added translation for `SELECT *,` pattern for Oracle.
+
+2. Switched Oracle translation of `SELECT TOP` from `WHERE ROWNUM <=` to `FETCH FIRST ROWS ONLY`.
+
+3. Added translation of `DATEPART()` to all dialects.
+
+4. Added translation patterns to avoid alias conflicts when using `dbplyr` on BigQuery.
+
+5. Adding translation of SQL Server's `IIF()` shorthand for all dialects.
+
+6. As a temporary workaround for older SQL Server instances, translating `DROP TABLE IF EXISTS` and `CREATE TABLE IF NOT EXISTS` to old syntax.
+
+Bugfixes:
+
+1. Fixed erroneously identifying parts of quoted text as start of SQL comments.
+
+2. Fixed translation of `INSERT INTO` with more than one CTE for Spark.
+
+3. Fixed translation of `SELECT TOP` on all platforms when using `DISTINCT`.
+
+
 SqlRender 1.10.0
 ================
 
@@ -9,9 +35,9 @@ Changes:
 
 3. Added translation to DuckDb.
 
-Bigfixes:
+Bugfixes:
 
-1. Fixed translation for NEWID() on BigQuery.
+1. Fixed translation for `NEWID()` on BigQuery.
 
 
 SqlRender 1.9.2
@@ -141,9 +167,9 @@ Changes:
 
 Bugfixes:
 
-1. On SQLite, DATEADD and CONVERT functions now cast to REAL (used to represent DATE / DATETIME). 
+1. On SQLite, `DATEADD` and `CONVERT` functions now cast to `REAL` (used to represent DATE / DATETIME). 
 
-2. On SQLite, DATEADD function now works when amount to add is not a verbatim number.
+2. On SQLite, `DATEADD` function now works when amount to add is not a verbatim number.
 
 
 SqlRender 1.6.6
@@ -161,7 +187,7 @@ SqlRender 1.6.5
 
 Bugfixes:
 
-1. Fixed CAST(@a as DATE) for YYYYMMDD string dates on BigQuery.
+1. Fixed `CAST(@a as DATE)` for 'YYYYMMDD' string dates on BigQuery.
 
 
 SqlRender 1.6.4
@@ -185,15 +211,15 @@ Changes:
 
 3.  No longer automatically casting literal to TEXT in RedShift CTE. Users are required to do explicit casts instead.
 
-4. BigQuery insertTable now also uses CTAS hack.
+4. BigQuery `insertTable()` now also uses CTAS hack.
 
-5. Added translation rules for HASHBYTES.
+5. Added translation rules for `HASHBYTES`.
 
 Bugfixes:
 
 1. Fixing GETDATE translation for SQLite.
 
-2. When calling 'render', the replacement value can now contain a $ sign. (Previously this caused an error).
+2. When calling `render`, the replacement value can now contain a $ sign. (Previously this caused an error).
 
 3. isNumeric can now also be applied to numeric fields in Postgres.
 
@@ -233,9 +259,9 @@ Changes:
 
 2. Added support for SQLite.
 
-3. ISNUMERIC translation implemented for Impala, Netezza, and BigQuery.
+3. `ISNUMERIC` translation implemented for Impala, Netezza, and BigQuery.
 
-4. Performance improvement for Impala temp tables (CREATE TABLE ... STORED AS PARQUET).
+4. Performance improvement for Impala temp tables (`CREATE TABLE ... STORED AS PARQUET`).
 
 5. Adding functions `render` and `translate` that output strings instead of lists. Deprecating `renderSql` and `translateSql`.
 
@@ -361,13 +387,13 @@ Changes:
 
 1. Added ability to use regular expression in translation patterns. This allowed SELECT TOP n to be translated.
 
-2. Deprecated sourceDialect argument.
+2. Deprecated `sourceDialect` argument.
 
-3. Added translation for CONCAT function with >2 arguments to Oracle (which only allows 2 arguments)
+3. Added translation for `CONCAT` function with >2 arguments to Oracle (which only allows 2 arguments)
 
 4. Added hints for translation optimization to massive parallel platforms like RedShift
 
-5. Throw warnings when translateSql is called with variable names that are not in the SQL
+5. Throw warnings when `translateSql()` is called with variable names that are not in the SQL
 
 6. Throw warnings when table names are too long for Oracle
 

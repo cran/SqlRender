@@ -202,7 +202,7 @@ test_that("translate sql server -> DuckDB DATEDIFF month date fields", {
   expect_equal_ignore_spaces(
     sql,
     "SELECT (extract(year from age(CAST(date2 AS DATE), CAST(date1 AS DATE)))*12 + extract(month from age(CAST(date2 AS DATE), CAST(date1 AS DATE))));"
-    )
+  )
 })
 
 test_that("translate sql server -> DuckDB CEILING", {
@@ -213,4 +213,9 @@ test_that("translate sql server -> DuckDB CEILING", {
 test_that("translate sql server -> DuckDB DROP TABLE IF EXISTS", {
   sql <- translate("DROP TABLE IF EXISTS test;", targetDialect = "duckdb")
   expect_equal_ignore_spaces(sql, "DROP TABLE IF EXISTS test;")
+})
+
+test_that("translate sql server -> duckdb IIF", {
+  sql <- translate("SELECT IIF(a>b, 1, b) AS max_val FROM table;", targetDialect = "duckdb")
+  expect_equal_ignore_spaces(sql, "SELECT CASE WHEN a>b THEN 1 ELSE b END AS max_val FROM table ;")
 })

@@ -405,3 +405,25 @@ test_that("translate sql server -> spark DELETE FROM WHERE", {
     "INSERT OVERWRITE TABLE my_table  SELECT * FROM my_table  WHERE NOT (a=1);"
   )
 })
+test_that("translate sql server -> spark double CTE INSERT INTO", {
+  sql <- translate(
+    "WITH a AS (
+    SELECT * FROM my_table_1
+  ), b AS (
+    SELECT * FROM my_table_2
+  )
+  SELECT *
+  INTO some_table
+  FROM a, b;",
+    targetDialect = "spark"
+  )
+  expect_equal_ignore_spaces(
+    sql,
+    "DROP VIEW IF EXISTS a  ; CREATE TEMPORARY VIEW a   AS (SELECT * FROM my_table_1\n );\nDROP VIEW IF EXISTS b ; CREATE TEMPORARY VIEW b  AS (SELECT * FROM my_table_2\n );\n CREATE TABLE some_table \nUSING DELTA\nAS\n(SELECT\n*\nFROM\na, b);"
+  )
+})
+
+test_that("translate sql server -> spark IIF", {
+  sql <- translate("SELECT IIF(a>b, 1, b) AS max_val FROM table;", targetDialect = "spark")
+  expect_equal_ignore_spaces(sql, "SELECT CASE WHEN a>b THEN 1 ELSE b END AS max_val FROM table ;")
+})

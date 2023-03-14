@@ -1,6 +1,6 @@
-ec3397b8fe6db28f1d70bff6d30f322c *DESCRIPTION
+c385250d3e5a9fec71ed8b213aba0a72 *DESCRIPTION
 e1c705238127d844bbdeedb49f83df2a *NAMESPACE
-b7e2c9fdebf7af5f1a0688c377969757 *NEWS.md
+9ce2f81a91bd84637dceba1f1d3fe18c *NEWS.md
 c313bf961ee5a5d1ef6b77cb5f17a427 *R/HelperFunctions.R
 2610a72f649f1ed43984e5bdc1608dbe *R/RenderSql.R
 62625e19818ea77ac02beeea2a00f7bb *R/ShinyApps.R
@@ -9,11 +9,11 @@ c313bf961ee5a5d1ef6b77cb5f17a427 *R/HelperFunctions.R
 03a546cf700d7b63698cc90fbe3c0ed5 *README.md
 16448f082aa2b0474f60d5cec42cf06f *build/vignette.rds
 d29238f5af2353f1bf20015a9c0cf124 *inst/csv/jarChecksum.txt
-70bafb93e8849922190fa0d7d92a2bf5 *inst/csv/replacementPatterns.csv
+25264ca58e9f0d13e6c86a62d96ee471 *inst/csv/replacementPatterns.csv
 9787df91cceb98ff7c60ec1311279f1a *inst/csv/supportedDialects.csv
 6e3226c7f5b5a7c22b5b1b5022f1efcf *inst/doc/UsingSqlRender.R
 1b019f38d871bc6863677c7fc935d548 *inst/doc/UsingSqlRender.Rmd
-c3d0b506ab58535638ade2504b024c53 *inst/doc/UsingSqlRender.pdf
+66a198271b7e8da5576ca1bbbd1c7da0 *inst/doc/UsingSqlRender.pdf
 5b673f85a594bbe9f67fb578d2f4543e *inst/java/SqlRender.jar
 7f987fd6b5eb23dd188c374244a0e48d *inst/shinyApps/SqlDeveloper/server.R
 8b529204c590c3ba080922d25995117d *inst/shinyApps/SqlDeveloper/ui.R
@@ -60,7 +60,7 @@ e741ff502e0b263f92d01b2c4916273a *man/translateSqlFile.Rd
 95ca9c2eef4e4573e5f158f139f3561d *tests/testthat/test-replacement-patterns-file-format.R
 873807912bfa8ce409f0b54db138d24f *tests/testthat/test-splitSql.R
 9b52523dd2b4d6e3affcd7abd19816dc *tests/testthat/test-translate-bigquery.R
-3ed0c5eee70a1e758d830906bb752e99 *tests/testthat/test-translate-duckdb.R
+d1d96b3bf4b7a6f78aa44c3ddbf8c213 *tests/testthat/test-translate-duckdb.R
 02c97d8746f6f4e3cc789f526cbc92c6 *tests/testthat/test-translate-hive.R
 7fc0a625d494d685f91d4f77058b4c72 *tests/testthat/test-translate-impala.R
 482ec09624c219bcde059744a2b1010c *tests/testthat/test-translate-netezza.R
@@ -72,7 +72,7 @@ e741ff502e0b263f92d01b2c4916273a *man/translateSqlFile.Rd
 d3a3f56c1474528145ee7ba15dc11827 *tests/testthat/test-translate-spark.R
 f389278331a9e725377d2da5b6f0beba *tests/testthat/test-translate-sql_server.R
 04c3b4dbb7887369275c49dbad3f6e48 *tests/testthat/test-translate-sqlite-extended.R
-03018417e7a11c45316807f59dc427ee *tests/testthat/test-translate-sqlite.R
+ec07111e2d263be7acb53922d8adf4f9 *tests/testthat/test-translate-sqlite.R
 404c8e66e0cfb6a02804aa50eab87fff *tests/testthat/test-translate-synapse.R
 9fadc62b31b45f0764f28c7c7540f443 *tests/testthat/test-translateSql.R
 1b019f38d871bc6863677c7fc935d548 *vignettes/UsingSqlRender.Rmd

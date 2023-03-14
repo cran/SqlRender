@@ -1,3 +1,17 @@
+SqlRender 1.13.0
+================
+
+Changes:
+
+1. Added translation of `charindex` for BigQuery.
+
+2. SQLite translation of `RAND()` now returns value between 0 and 1 for consistency with other platforms.
+
+Bugfixes:
+
+1. Fixing DuckDB translation of `DATEADD()`.
+
+
 SqlRender 1.12.1
 ================
 

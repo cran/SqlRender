@@ -427,3 +427,31 @@ test_that("translate sql server -> spark IIF", {
   sql <- translate("SELECT IIF(a>b, 1, b) AS max_val FROM table;", targetDialect = "spark")
   expect_equal_ignore_spaces(sql, "SELECT CASE WHEN a>b THEN 1 ELSE b END AS max_val FROM table ;")
 })
+
+test_that("translate sql server -> spark DATEPART", {
+  sql <- translate("select DATEPART(YEAR, some_date) from my_table",
+                   targetDialect = "spark"
+  )
+  expect_equal_ignore_spaces(sql, "select DATE_PART('YEAR', some_date) from my_table")
+})
+
+test_that("translate sql server -> spark DATEADD DAY with float", {
+  sql <- translate("select DATEADD(DAY, 1.0, some_date) from my_table;",
+                   targetDialect = "spark"
+  )
+  expect_equal_ignore_spaces(sql, "select date_add(some_date, 1) from my_table;")
+})
+
+test_that("translate sql server -> spark DATEADD YEAR with float", {
+  sql <- translate("select DATEADD(YEAR, 1.0, some_date) from my_table;",
+                   targetDialect = "spark"
+  )
+  expect_equal_ignore_spaces(sql, "select (some_date + INTERVAL 1 year) from my_table;")
+})
+
+test_that("translate sql server -> spark DATEADD YEAR with float", {
+  sql <- translate("WITH cte AS (SELECT * FROM table) SELECT * INTO tmp.table FROM cte;",
+                   targetDialect = "spark"
+  )
+  expect_equal_ignore_spaces(sql, "DROP VIEW IF EXISTS cte ; CREATE TEMPORARY VIEW cte  AS (SELECT * FROM table);\n CREATE TABLE tmp.table \nUSING DELTA\nAS\n(SELECT\n* \nFROM\ncte);")
+})

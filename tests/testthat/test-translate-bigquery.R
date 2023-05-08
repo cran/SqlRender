@@ -527,3 +527,20 @@ test_that("translate sql server -> bigquery IIF", {
   expect_equal_ignore_spaces(sql, "select CASE WHEN a>b THEN 1 ELSE b END as max_val from table ;")
 })
 
+test_that("translate sql server -> bigquery drvd()", {
+  sql <- translate("SELECT
+      TRY_CAST(name AS VARCHAR(MAX)) AS name,
+      TRY_CAST(speed AS FLOAT) AS speed
+    FROM (  VALUES ('A', 1.0), ('B', 2.0)) AS drvd(name, speed);", targetDialect = "bigquery")
+  expect_equal_ignore_spaces(sql, "select\n      CAST(name as STRING) as name,\n      cast(speed  as float64) as speed\n    FROM (SELECT NULL AS name, NULL AS speed UNION ALL SELECT 'A', 1.0 UNION ALL SELECT 'B', 2.0 LIMIT 999999 OFFSET 1) AS values_table;")
+})
+
+test_that("translate sql server -> bigquery temp table field ref", {
+  sql <- translate("SELECT #tmp.name FROM #tmp;", targetDialect = "bigquery", tempEmulationSchema = "ts")
+  expect_equal_ignore_spaces(sql, sprintf("select %stmp.name from ts.%stmp;", getTempTablePrefix(), getTempTablePrefix()))
+})
+
+test_that("translate sql server -> bigquery temp dplyr ... pattern", {
+  sql <- translate("SELECT * FROM table...1;", targetDialect = "bigquery")
+  expect_equal_ignore_spaces(sql, "select * from tablexxx1;")
+})

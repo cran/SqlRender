@@ -514,3 +514,21 @@ test_that("translateSingleStatement: warning when using oracleTempSchema", {
   clearWarningBlock()
   expect_warning(translateSingleStatement("SELECT * FROM #my_table", targetDialect = "oracle", oracleTempSchema = "scratch"))
 })
+
+test_that("translate sql server -> oracle drvd()", {
+  sql <- translate("SELECT
+      TRY_CAST(name AS VARCHAR(MAX)) AS name,
+      TRY_CAST(speed AS FLOAT) AS speed
+    FROM (  VALUES ('A', 1.0), ('B', 2.0)) AS drvd(name, speed);", targetDialect = "oracle")
+  expect_equal_ignore_spaces(sql, "SELECT CAST(name AS VARCHAR2(1024)) AS name,\n      CAST(speed AS FLOAT) AS speed\n    FROM (SELECT NULL AS name, NULL AS speed    FROM DUAL WHERE (0 = 1)    UNION ALL SELECT 'A', 1.0   FROM DUAL   UNION ALL SELECT 'B', 2.0  FROM DUAL )   values_table ;")
+})
+
+test_that("translate sql server -> oracle temp table field ref", {
+  sql <- translate("SELECT #tmp.name FROM #tmp;", targetDialect = "oracle", tempEmulationSchema = "ts")
+  expect_equal_ignore_spaces(sql, sprintf("SELECT %stmp.name FROM ts.%stmp;", getTempTablePrefix(), getTempTablePrefix()))
+})
+
+test_that("translate sql server -> oracle temp dplyr ... pattern", {
+  sql <- translate("SELECT * FROM table...1;", targetDialect = "oracle")
+  expect_equal_ignore_spaces(sql, "SELECT * FROM tablexxx1;")
+})

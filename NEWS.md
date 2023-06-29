@@ -1,3 +1,13 @@
+SqlRender 1.15.1
+================
+
+Bugfixes:
+
+1. Fixed translation of `DATEADD()` for DuckDB when number to add is an expression instead of a verbatim number.
+
+2. Fixed Synapse option in the SqlDeveloper Shiny app.
+
+
 SqlRender 1.15.0
 ================
 

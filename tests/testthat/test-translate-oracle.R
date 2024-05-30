@@ -24,7 +24,7 @@ test_that("translate sql server -> Oracle DATEDIFF", {
     sql,
     "SELECT CEIL(CAST(drug_era_end_date AS DATE) - CAST(drug_era_start_date AS DATE)) FROM drug_era;"
   )
-  
+
   sql <- translate("SELECT DATEDIFF(second,drug_era_start_date,drug_era_end_date) FROM drug_era;",
     targetDialect = "oracle"
   )
@@ -32,7 +32,7 @@ test_that("translate sql server -> Oracle DATEDIFF", {
     sql,
     "SELECT EXTRACT(SECOND FROM (drug_era_end_date - drug_era_start_date)) FROM drug_era;"
   )
-  
+
   sql <- translate("SELECT DATEDIFF(minute,drug_era_start_date,drug_era_end_date) FROM drug_era;",
     targetDialect = "oracle"
   )
@@ -40,7 +40,7 @@ test_that("translate sql server -> Oracle DATEDIFF", {
     sql,
     "SELECT EXTRACT(MINUTE FROM (drug_era_end_date - drug_era_start_date)) FROM drug_era;"
   )
-  
+
   sql <- translate("SELECT DATEDIFF(hour,drug_era_start_date,drug_era_end_date) FROM drug_era;",
     targetDialect = "oracle"
   )
@@ -555,4 +555,9 @@ test_that("translate sql server -> oracle temp table field ref", {
 test_that("translate sql server -> oracle temp dplyr ... pattern", {
   sql <- translate("SELECT * FROM table...1;", targetDialect = "oracle")
   expect_equal_ignore_spaces(sql, "SELECT * FROM tablexxx1;")
+})
+
+test_that("translate sql server -> oracle bitwise and", {
+  sql <- translate("SELECT ((a+b) & c/123) FROM table;", targetDialect = "oracle")
+  expect_equal_ignore_spaces(sql, "SELECT BITAND((a+b) , c/123) FROM table ;")
 })

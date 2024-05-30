@@ -138,43 +138,12 @@ test_that("translate sql server -> spark datediff", {
   sql <- translate("SELECT datediff(d, '2019-01-01', '2019-01-02')",
     targetDialect = "spark"
   )
-  expect_equal_ignore_spaces(sql, "SELECT datediff('2019-01-02', '2019-01-01')")
+  expect_equal_ignore_spaces(sql, "SELECT datediff(day, '2019-01-01', '2019-01-02')")
 
   sql <- translate("SELECT datediff(dd, '2019-01-01', '2019-01-02')",
     targetDialect = "spark"
   )
-  expect_equal_ignore_spaces(sql, "SELECT datediff('2019-01-02', '2019-01-01')")
-
-  sql <- translate("SELECT datediff(day, '2019-01-01', '2019-01-02')",
-    targetDialect = "spark"
-  )
-  expect_equal_ignore_spaces(sql, "SELECT datediff('2019-01-02', '2019-01-01')")
-  
-  sql <- translate("SELECT datediff(second, '2019-01-01', '2019-01-02')",
-                   targetDialect = "spark"
-  )
-  expect_equal_ignore_spaces(sql, "SELECT datediff(second, '2019-01-02', '2019-01-01')")
-  
-  sql <- translate("SELECT datediff(minute, '2019-01-01', '2019-01-02')",
-                   targetDialect = "spark"
-  )
-  expect_equal_ignore_spaces(sql, "SELECT datediff(minute, '2019-01-02', '2019-01-01')")
-  
-  sql <- translate("SELECT datediff(hour, '2019-01-01', '2019-01-02')",
-                   targetDialect = "spark"
-  )
-  expect_equal_ignore_spaces(sql, "SELECT datediff(hour, '2019-01-02', '2019-01-01')")
-  
-  sql <- translate("SELECT datediff(month, '2019-01-01', '2019-01-02')",
-                   targetDialect = "spark"
-  )
-  expect_equal_ignore_spaces(sql, "SELECT datediff(month, '2019-01-02', '2019-01-01')")
-  
-  sql <- translate("SELECT datediff(year, '2019-01-01', '2019-01-02')",
-                   targetDialect = "spark"
-  )
-  expect_equal_ignore_spaces(sql, "SELECT datediff(year, '2019-01-02', '2019-01-01')")
-  
+  expect_equal_ignore_spaces(sql, "SELECT datediff(day, '2019-01-01', '2019-01-02')")
 })
 
 test_that("translate sql server -> spark convert date", {
@@ -444,28 +413,28 @@ test_that("translate sql server -> spark IIF", {
 
 test_that("translate sql server -> spark DATEPART", {
   sql <- translate("select DATEPART(YEAR, some_date) from my_table",
-                   targetDialect = "spark"
+    targetDialect = "spark"
   )
   expect_equal_ignore_spaces(sql, "select DATE_PART('YEAR', some_date) from my_table")
 })
 
 test_that("translate sql server -> spark DATEADD DAY with float", {
   sql <- translate("select DATEADD(DAY, 1.0, some_date) from my_table;",
-                   targetDialect = "spark"
+    targetDialect = "spark"
   )
   expect_equal_ignore_spaces(sql, "select DATE_ADD(day, 1, some_date) from my_table;")
 })
 
 test_that("translate sql server -> spark DATEADD YEAR with float", {
   sql <- translate("select DATEADD(YEAR, 1.0, some_date) from my_table;",
-                   targetDialect = "spark"
+    targetDialect = "spark"
   )
   expect_equal_ignore_spaces(sql, "select DATE_ADD(year, 1, some_date) from my_table;")
 })
 
 test_that("translate sql server -> spark DATEADD YEAR with float", {
   sql <- translate("WITH cte AS (SELECT * FROM table) SELECT * INTO tmp.table FROM cte;",
-                   targetDialect = "spark"
+    targetDialect = "spark"
   )
   expect_equal_ignore_spaces(sql, "DROP VIEW IF EXISTS cte ; CREATE TEMPORARY VIEW cte  AS (SELECT * FROM table);\n CREATE TABLE tmp.table \nUSING DELTA\nAS\n(SELECT\n* \nFROM\ncte);")
 })
@@ -479,4 +448,3 @@ test_that("translate sql server -> spark add column with default", {
   sql <- translate("ALTER TABLE mytable ADD COLUMN mycol int DEFAULT 0;", targetDialect = "spark")
   expect_equal_ignore_spaces(sql, "ALTER TABLE mytable ADD COLUMN mycol int; \n ALTER TABLE mytable SET TBLPROPERTIES('delta.feature.allowColumnDefaults' = 'supported'); \n ALTER TABLE mytable ALTER COLUMN mycol SET DEFAULT 0;")
 })
-

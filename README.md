@@ -3,8 +3,8 @@ SqlRender
 
 [![Build Status](https://github.com/OHDSI/SqlRender/workflows/R-CMD-check/badge.svg)](https://github.com/OHDSI/SqlRender/actions?query=workflow%3AR-CMD-check)
 [![codecov.io](https://codecov.io/github/OHDSI/SqlRender/coverage.svg?branch=main)](https://app.codecov.io/github/OHDSI/SqlRender)
-[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/SqlRender)](https://cran.r-project.org/package=SqlRender)
-[![CRAN_Status_Badge](http://cranlogs.r-pkg.org/badges/SqlRender)](https://cran.r-project.org/package=SqlRender)
+[![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/SqlRender)](https://cran.r-project.org/package=SqlRender)
+[![CRAN_Status_Badge](https://cranlogs.r-pkg.org/badges/SqlRender)](https://cran.r-project.org/package=SqlRender)
 
 SqlRender is part of [HADES](https://ohdsi.github.io/Hades/).
 
@@ -17,7 +17,7 @@ Features
 - Supports a simple markup syntax for making SQL parameterized, and renders parameterized SQL (containing the markup syntax) to executable SQL
 - The syntax supports defining default parameter values
 - The syntax supports if-then-else structures
-- Has functions for translating SQL from one dialect (Microsoft SQL Server) to other dialects (Oracle, PostgreSQL, Amazon RedShift, Impala, IBM Netezza, Google BigQuery, Microsoft PDW, Snowflake, Azure Synapse, Apache Spark and SQLite)
+- Has functions for translating SQL from one dialect (Microsoft SQL Server) to other dialects (Oracle, PostgreSQL, Amazon RedShift, Impala, IBM Netezza, Google BigQuery, Microsoft PDW, Snowflake, Azure Synapse, Apache Spark, SQLite, and InterSystems IRIS)
 - Can be used as R package, Java library, or as stand-alone executable through a command-line interface
 
 Examples

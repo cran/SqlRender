@@ -1,8 +1,8 @@
 Package: SqlRender
 Type: Package
 Title: Rendering Parameterized SQL and Translation to Dialects
-Version: 1.19.0
-Date: 2024-10-09
+Version: 1.19.1
+Date: 2024-11-29
 Authors@R: c(
   person("Martijn", "Schuemie", , "schuemie@ohdsi.org", role = c("aut", "cre")),
   person("Marc", "Suchard", role = c("aut"))
@@ -23,8 +23,8 @@ Suggests: testthat, knitr, rmarkdown, shiny, shinydashboard
 RoxygenNote: 7.3.2
 Encoding: UTF-8
 NeedsCompilation: no
-Packaged: 2024-10-09 06:34:50 UTC; schuemie
+Packaged: 2024-11-29 08:38:12 UTC; schuemie
 Author: Martijn Schuemie [aut, cre],
   Marc Suchard [aut]
 Repository: CRAN
-Date/Publication: 2024-10-09 07:00:03 UTC
+Date/Publication: 2024-11-29 09:10:08 UTC

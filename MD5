@@ -1,6 +1,6 @@
-fa73d7e4ee99d6cce3752032c80f78f0 *DESCRIPTION
+e45804e339734da97a5ff64142fb6fb9 *DESCRIPTION
 59e09d74d6597c0b144901fcd913c746 *NAMESPACE
-7bd9145694de059cdf18d8b079e6ce92 *NEWS.md
+ae7122db2df5309c8023b76ad2ec3075 *NEWS.md
 0f9bf8d8568459f7a8fa89b210b94819 *R/HelperFunctions.R
 d019d7a18e0a77412d1a2e3a575d99aa *R/RenderSql.R
 20c78d746ee2389ea35dc8e56c744a1a *R/ShinyApps.R
@@ -9,11 +9,11 @@ ed7ec2093b8dda6e035bf633e295033b *R/SqlRender.R
 5940b8660f4533317fdb16eda3a47cf0 *README.md
 1465a8822db4dca31fa0903a102dfc48 *build/vignette.rds
 8692c8b5ea5a15c6c7ad2bfa5a97c95e *inst/csv/jarChecksum.txt
-2d80057f104e3e6b0469c7c3070599ff *inst/csv/replacementPatterns.csv
+525348c056a8becfa43fda2bdac6d2ab *inst/csv/replacementPatterns.csv
 060b5662ac59762a51c15a06ca576571 *inst/csv/supportedDialects.csv
 a545f770e3c06c4f5d3c1e8172fdf9c7 *inst/doc/UsingSqlRender.R
 eaa608c3109f2c22c7f1abd9439e3a9a *inst/doc/UsingSqlRender.Rmd
-de378a2b4ae23809cb81e028f855d206 *inst/doc/UsingSqlRender.pdf
+b17e2833f8f0cb25f517f8c9059b3628 *inst/doc/UsingSqlRender.pdf
 070887d1121d9308102ee00c3c505470 *inst/java/SqlRender.jar
 e004e3fe30a02a5036b82f161baa1396 *inst/shinyApps/SqlDeveloper/server.R
 617ceaecd1f83087b09c23d88a45c956 *inst/shinyApps/SqlDeveloper/ui.R
@@ -63,7 +63,7 @@ acc7a6de08a3855c9eff8fc908c729fa *tests/testthat/test-replacement-patterns-file-
 85853c5560d53ac707d604d455e68940 *tests/testthat/test-translate-duckdb.R
 291c90e6fe2f6c4a34483617d8620119 *tests/testthat/test-translate-hive.R
 4031bff518b60db449facc3b769c98fb *tests/testthat/test-translate-impala.R
-ced4d42076864765e34dd59459b366a0 *tests/testthat/test-translate-iris.R
+cab5ac0ecfbfc2ea9c3a497075edf52b *tests/testthat/test-translate-iris.R
 9c784a748a77502264a212b25efcbd7c *tests/testthat/test-translate-netezza.R
 f58682beaab61ae99ae6cbf206bd5ea8 *tests/testthat/test-translate-oracle.R
 b0737d7420f594922628ca626b31a26f *tests/testthat/test-translate-pdw.R

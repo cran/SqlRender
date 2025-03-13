@@ -58,7 +58,7 @@ sql <- "SELECT * FROM #children;"
 translate(sql, targetDialect = "oracle", tempEmulationSchema = "temp_schema")
 
 ## ----echo=TRUE, eval=FALSE----------------------------------------------------
-#  options(sqlRenderTempEmulationSchema = "temp_schema")
+# options(sqlRenderTempEmulationSchema = "temp_schema")
 
 ## ----echo=TRUE----------------------------------------------------------------
 foo <- function(databaseSchema, dbms) {
@@ -72,44 +72,44 @@ foo("cdm_data.dbo", "sql server")
 foo("cdm_data", "postgresql")
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  launchSqlRenderDeveloper()
+# launchSqlRenderDeveloper()
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  renderSqlFile("parameterizedSql.txt", "renderedSql.txt")
+# renderSqlFile("parameterizedSql.txt", "renderedSql.txt")
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  createRWrapperForSql(
-#    sqlFilename = "test.sql",
-#    rFilename = "test.R",
-#    packageName = "myPackage"
-#  )
+# createRWrapperForSql(
+#   sqlFilename = "test.sql",
+#   rFilename = "test.R",
+#   packageName = "myPackage"
+# )
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  #' Todo: add title
-#  #'
-#  #' @description
-#  #' Todo: add description
-#  #'
-#  #' @details
-#  #' Todo: add details
-#  #'
-#  #' @param connectionDetails   An R object of type \code{ConnectionDetails} created ...
-#  #' @param selectedValue
-#  #'
-#  #' @export
-#  test <- function(connectionDetails,
-#                   selectedValue = 1) {
-#    renderedSql <- loadRenderTranslateSql("test.txt",
-#      packageName = "myPackage",
-#      dbms = connectionDetails$dbms,
-#      selected_value = selectedValue
-#    )
-#    conn <- connect(connectionDetails)
-#  
-#    writeLines("Executing multiple queries. This could take a while")
-#    executeSql(conn, renderedSql)
-#    writeLines("Done")
-#  
-#    dummy <- dbDisconnect(conn)
-#  }
+# #' Todo: add title
+# #'
+# #' @description
+# #' Todo: add description
+# #'
+# #' @details
+# #' Todo: add details
+# #'
+# #' @param connectionDetails   An R object of type \code{ConnectionDetails} created ...
+# #' @param selectedValue
+# #'
+# #' @export
+# test <- function(connectionDetails,
+#                  selectedValue = 1) {
+#   renderedSql <- loadRenderTranslateSql("test.txt",
+#     packageName = "myPackage",
+#     dbms = connectionDetails$dbms,
+#     selected_value = selectedValue
+#   )
+#   conn <- connect(connectionDetails)
+# 
+#   writeLines("Executing multiple queries. This could take a while")
+#   executeSql(conn, renderedSql)
+#   writeLines("Done")
+# 
+#   dummy <- dbDisconnect(conn)
+# }
 

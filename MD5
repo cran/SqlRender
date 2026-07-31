@@ -1,6 +1,6 @@
-632b844a4f5c66ae025dcee29931e32f *DESCRIPTION
+d428a334b8e63f1d66b438c14ffea3d0 *DESCRIPTION
 59e09d74d6597c0b144901fcd913c746 *NAMESPACE
-232020c596df0419285ad2f0c51e4506 *NEWS.md
+a02285aba570a259e37b7ebe49a1ad27 *NEWS.md
 c742aca46e4878bdc6d52be79b5c1810 *R/HelperFunctions.R
 562ec5c3471818e493a86157e28d7901 *R/RenderSql.R
 46f8e5c4f71efa75945d96afd97831c7 *R/ShinyApps.R
@@ -9,11 +9,11 @@ cb3d0ae71951e1d2b928eb974efc31ca *R/SqlRender.R
 5940b8660f4533317fdb16eda3a47cf0 *README.md
 1465a8822db4dca31fa0903a102dfc48 *build/vignette.rds
 8692c8b5ea5a15c6c7ad2bfa5a97c95e *inst/csv/jarChecksum.txt
-64b3a0ffafdc384d635c6e2304af7587 *inst/csv/replacementPatterns.csv
+b17b3ede5c7d62a145b732ff2367f241 *inst/csv/replacementPatterns.csv
 060b5662ac59762a51c15a06ca576571 *inst/csv/supportedDialects.csv
 1858e3933ae192a9383fe33993aa8961 *inst/doc/UsingSqlRender.R
 eaa608c3109f2c22c7f1abd9439e3a9a *inst/doc/UsingSqlRender.Rmd
-1a4b5878844e52587d891419a4681aa3 *inst/doc/UsingSqlRender.pdf
+5065f929aa5def7be262318b66c64961 *inst/doc/UsingSqlRender.pdf
 070887d1121d9308102ee00c3c505470 *inst/java/SqlRender.jar
 e004e3fe30a02a5036b82f161baa1396 *inst/shinyApps/SqlDeveloper/server.R
 bd2e3bc8b517692b38e04560581f4fc0 *inst/shinyApps/SqlDeveloper/ui.R
@@ -30,7 +30,7 @@ d2db33a0ab98857982d1816d90e2d872 *java/org/ohdsi/sql/SqlRender.java
 0532084990b4d95805aa539b16a5516d *java/org/ohdsi/sql/SqlTranslate.java
 789510ef0b4e01cad06bcf6c9019c69b *java/org/ohdsi/sql/StringUtils.java
 cf13d9a671314b5dafbe1c4e8283b192 *java/org/ohdsi/sql/TestSqlRender.java
-4c1653001e51827892700b2b76ed8513 *man/SqlRender-package.Rd
+af03a0d989fce2e8dc09f505a0a8b954 *man/SqlRender-package.Rd
 f7ac0298d9cc607c6053cb418e6ee804 *man/camelCaseToSnakeCase.Rd
 868128cf860e76222e6cc52c35e885e1 *man/camelCaseToSnakeCaseNames.Rd
 cb60f7dace258bb540043a480e69d711 *man/camelCaseToTitleCase.Rd
@@ -70,7 +70,7 @@ b0737d7420f594922628ca626b31a26f *tests/testthat/test-translate-pdw.R
 a2eaf2b53ca7a1dfb240e873cb4feed6 *tests/testthat/test-translate-postgresql.R
 4f53759a11c86bab8ee02066487e67f4 *tests/testthat/test-translate-redshift.R
 c4523c3e5e1e79b34ff77082935bf3b1 *tests/testthat/test-translate-snowflake.R
-682ffbe47e54488ee6330de8530b23ee *tests/testthat/test-translate-spark.R
+170ee9f3c814d309d4d70f70802004e5 *tests/testthat/test-translate-spark.R
 5652806d98d30bcf41afd41f7ebed312 *tests/testthat/test-translate-sql_server.R
 d3b71f729ef7623876172c37b7e17f5b *tests/testthat/test-translate-sqlite-extended.R
 0bf9a4f22eadf42996b9faa9bdb3646a *tests/testthat/test-translate-sqlite.R

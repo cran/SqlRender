@@ -34,6 +34,26 @@ test_that("translate sql server -> SQLite add month", {
   )
 })
 
+test_that("translate sql server -> SQLite add second/minute/hour", {
+  sql <- translate("DATEADD(second,30,date)", targetDialect = "sqlite")
+  expect_equal_ignore_spaces(
+    sql,
+    "CAST(STRFTIME('%s', DATETIME(date, 'unixepoch', (30)||' seconds')) AS REAL)"
+  )
+
+  sql <- translate("DATEADD(minute,30,date)", targetDialect = "sqlite")
+  expect_equal_ignore_spaces(
+    sql,
+    "CAST(STRFTIME('%s', DATETIME(date, 'unixepoch', (30)||' minutes')) AS REAL)"
+  )
+
+  sql <- translate("DATEADD(hour,30,date)", targetDialect = "sqlite")
+  expect_equal_ignore_spaces(
+    sql,
+    "CAST(STRFTIME('%s', DATETIME(date, 'unixepoch', (30)||' hours')) AS REAL)"
+  )
+})
+
 test_that("translate sql server -> SQLite WITH SELECT INTO", {
   sql <- translate("WITH cte1 AS (SELECT a FROM b) SELECT c INTO d FROM cte1;",
     targetDialect = "sqlite"
@@ -128,12 +148,12 @@ test_that("translate sql server -> sqlite ISNUMERIC", {
   )
   expect_equal_ignore_spaces(
     sql,
-    "SELECT CASE WHEN CASE WHEN a GLOB '[0-9]*' OR a GLOB '[0-9]*.[0-9]*' OR a GLOB '.[0-9]*' THEN 1 ELSE 0 END = 1 THEN a ELSE b FROM c;"
+    "SELECT CASE WHEN CASE WHEN TRIM(CAST(CAST(a AS numeric) AS char), '0.') = TRIM(CAST(a AS char), '0.') THEN 1 ELSE 0 END = 1 THEN a ELSE b FROM c;"
   )
   sql <- translate("SELECT a FROM table WHERE ISNUMERIC(a) = 1", targetDialect = "sqlite")
   expect_equal_ignore_spaces(
     sql,
-    "SELECT a FROM table WHERE CASE WHEN a GLOB '[0-9]*' OR a GLOB '[0-9]*.[0-9]*' OR a GLOB '.[0-9]*' THEN 1 ELSE 0 END = 1"
+    "SELECT a FROM table WHERE CASE WHEN TRIM(CAST(CAST(a AS numeric) AS char), '0.') = TRIM(CAST(a AS char), '0.') THEN 1 ELSE 0 END = 1"
   )
 })
 
